@@ -258,7 +258,7 @@ namespace ifd {
 			for (int i = 0; i < numPoints; i++) {
 				window->DrawList->PathClear();
 
-				int pIndex = i * 2;
+				const int pIndex = i * 2;
 				window->DrawList->PathLineTo(ImVec2(center.x + outerRadius * sin(pIndex * angle), center.y - outerRadius * cos(pIndex * angle)));
 				window->DrawList->PathLineTo(ImVec2(center.x + innerRadius * sin((pIndex + 1) * angle), center.y - innerRadius * cos((pIndex + 1) * angle)));
 				window->DrawList->PathLineTo(ImVec2(center.x + innerRadius * sin((pIndex - 1) * angle), center.y - innerRadius * cos((pIndex - 1) * angle)));
@@ -270,7 +270,7 @@ namespace ifd {
 		// outline
 		window->DrawList->PathClear();
 		for (int i = 0; i < numPoints * 2; i++) {
-			float radius = i & 1 ? innerRadius : outerRadius;
+			const float radius = i & 1 ? innerRadius : outerRadius;
 			window->DrawList->PathLineTo(ImVec2(center.x + radius * sin(i * angle), center.y - radius * cos(i * angle)));
 		}
 		window->DrawList->PathStroke(ImGui::ColorConvertFloat4ToU32(ImGui::GetStyle().Colors[ImGuiCol_Text]), true, 2.0f);
@@ -279,41 +279,41 @@ namespace ifd {
 	}
 	bool FileIcon(const char* label, bool isSelected, ImTextureID icon, ImVec2 size, bool hasPreview, int previewWidth, int previewHeight)
 	{
-		ImGuiStyle& style = ImGui::GetStyle();
-		ImGuiContext& g = *GImGui;
-		ImGuiWindow* window = g.CurrentWindow;
+		const ImGuiStyle& style = ImGui::GetStyle();
+		const ImGuiContext& g = *GImGui;
+		const ImGuiWindow* window = g.CurrentWindow;
 
-		float windowSpace = ImGui::GetWindowPos().x + ImGui::GetWindowContentRegionMax().x;
-		ImVec2 pos = window->DC.CursorPos;
+		const float windowSpace = ImGui::GetWindowPos().x + ImGui::GetWindowContentRegionMax().x;
+		const ImVec2 pos = window->DC.CursorPos;
 		bool ret = false;
 
 		if (ImGui::InvisibleButton(label, size))
 			ret = true;
 
-		bool hovered = ImGui::IsItemHovered();
-		bool active = ImGui::IsItemActive();
-		bool doubleClick = ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left);
+		const bool hovered = ImGui::IsItemHovered();
+		const bool active = ImGui::IsItemActive();
+		const bool doubleClick = ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left);
 		if (doubleClick && hovered)
 			ret = true;
 
 
-		float iconSize = size.y - g.FontSize * 2;
-		float iconPosX = pos.x + (size.x - iconSize) / 2.0f;
-		ImVec2 textSize = ImGui::CalcTextSize(label, 0, true, size.x);
+		const float iconSize = size.y - g.FontSize * 2;
+		const float iconPosX = pos.x + (size.x - iconSize) / 2.0f;
+		const ImVec2 textSize = ImGui::CalcTextSize(label, 0, true, size.x);
 
 		
 		if (hovered || active || isSelected)
 			window->DrawList->AddRectFilled(window->DC.LastItemRect.Min, window->DC.LastItemRect.Max, ImGui::ColorConvertFloat4ToU32(ImGui::GetStyle().Colors[active ? ImGuiCol_HeaderActive : (isSelected ? ImGuiCol_Header : ImGuiCol_HeaderHovered)]));
 
 		if (hasPreview) {
-			ImVec2 availSize = ImVec2(size.x, iconSize);
+			auto availSize = ImVec2(size.x, iconSize);
 
 			float scale = std::min<float>(availSize.x / previewWidth, availSize.y / previewHeight);
 			availSize.x = previewWidth * scale;
 			availSize.y = previewHeight * scale;
 
-			float previewPosX = pos.x + (size.x - availSize.x) / 2.0f;
-			float previewPosY = pos.y + (iconSize - availSize.y) / 2.0f;
+			const float previewPosX = pos.x + (size.x - availSize.x) / 2.0f;
+			const float previewPosY = pos.y + (iconSize - availSize.y) / 2.0f;
 
 			window->DrawList->AddImage(icon, ImVec2(previewPosX, previewPosY), ImVec2(previewPosX + availSize.x, previewPosY + availSize.y));
 		} else
@@ -322,8 +322,8 @@ namespace ifd {
 		window->DrawList->AddText(g.Font, g.FontSize, ImVec2(pos.x + (size.x-textSize.x) / 2.0f, pos.y + iconSize), ImGui::ColorConvertFloat4ToU32(ImGui::GetStyle().Colors[ImGuiCol_Text]), label, 0, size.x);
 
 
-		float lastButtomPos = ImGui::GetItemRectMax().x;
-		float thisButtonPos = lastButtomPos + style.ItemSpacing.x + size.x; // Expected position if next button was on same line
+		const float lastButtomPos = ImGui::GetItemRectMax().x;
+		const float thisButtonPos = lastButtomPos + style.ItemSpacing.x + size.x; // Expected position if next button was on same line
 		if (thisButtonPos < windowSpace)
 			ImGui::SameLine();
 
@@ -367,7 +367,7 @@ namespace ifd {
 		m_setDirectory(std::filesystem::current_path(), false);
 
 		// favorites are available on every OS
-		FileTreeNode* quickAccess = new FileTreeNode("Quick Access");
+		auto* quickAccess = new FileTreeNode("Quick Access");
 		quickAccess->Read = true;
 		m_treeCache.push_back(quickAccess);
 
@@ -376,7 +376,7 @@ namespace ifd {
 		DWORD username_len = UNLEN + 1;
 		GetUserNameW(username, &username_len);
 
-		std::wstring userPath = L"C:\\Users\\" + std::wstring(username) + L"\\";
+		const std::wstring userPath = L"C:\\Users\\" + std::wstring(username) + L"\\";
 
 		// Quick Access / Bookmarks
 		quickAccess->Children.push_back(new FileTreeNode(userPath + L"Desktop"));
@@ -389,7 +389,7 @@ namespace ifd {
 		m_treeCache.push_back(oneDrive);
 
 		// This PC
-		FileTreeNode* thisPC = new FileTreeNode("This PC");
+		auto* thisPC = new FileTreeNode("This PC");
 		thisPC->Read = true;
 		if (std::filesystem::exists(userPath + L"3D Objects"))
 			thisPC->Children.push_back(new FileTreeNode(userPath + L"3D Objects"));
@@ -399,10 +399,13 @@ namespace ifd {
 		thisPC->Children.push_back(new FileTreeNode(userPath + L"Music"));
 		thisPC->Children.push_back(new FileTreeNode(userPath + L"Pictures"));
 		thisPC->Children.push_back(new FileTreeNode(userPath + L"Videos"));
-		DWORD d = GetLogicalDrives();
+		const DWORD d = GetLogicalDrives();
 		for (int i = 0; i < 26; i++)
 			if (d & (1 << i))
-				thisPC->Children.push_back(new FileTreeNode(std::string(1, 'A' + i) + ":"));
+			{
+				if(char a[32]; sprintf(a, "A%d:", i))
+					thisPC->Children.push_back(new FileTreeNode(std::string(a)));
+			}
 		m_treeCache.push_back(thisPC);
 #else
 		std::error_code ec;

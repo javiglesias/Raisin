@@ -1,9 +1,9 @@
-#include "../Persistence/Profiling.h"
 #include "Shader.h"
+
 #include <fstream>
 #include <sstream>
 #include <iostream>
-#include "glad/glad.h"
+
 
 Shader::Shader(const char* vertex_path, const char* fragment_path, const char* _name)
 {
@@ -33,48 +33,12 @@ Shader::Shader(const char* vertex_path, const char* fragment_path, const char* _
 	}
 	const char* v_shader_code = vertex_code.c_str();
 	const char* f_shader_code = fragment_code.c_str();
-	unsigned int vertex, fragment;
-	int success;
-	char log_info[512];
-	vertex = glCreateShader(GL_VERTEX_SHADER);
-	glShaderSource(vertex, 1, &v_shader_code, nullptr);
-	glCompileShader(vertex);
-	glGetShaderiv(vertex, GL_COMPILE_STATUS, &success);
-	if(!success)
-	{
-		glGetShaderInfoLog(vertex, 512, nullptr, log_info);
-		std::cerr << log_info;
-	}
-	fragment = glCreateShader(GL_FRAGMENT_SHADER);
-	glShaderSource(fragment, 1, &f_shader_code, nullptr);
-	glCompileShader(fragment);
-	glGetShaderiv(fragment, GL_COMPILE_STATUS, &success);
-	if (!success)
-	{
-		glGetShaderInfoLog(fragment, 512, nullptr, log_info);
-		std::cerr << log_info;
-	}
-	id = glCreateProgram();
-	glAttachShader(id, vertex);
-	glAttachShader(id, fragment);
-	glLinkProgram(id);
-	glGetProgramiv(id, GL_LINK_STATUS, &success);
-	if (!success)
-	{
-		glGetProgramInfoLog(id, 512, nullptr, log_info);
-		std::cerr << log_info;
-	}
-	glDeleteShader(vertex);
-	glDeleteShader(fragment);
+	id = _CreateShader(v_shader_code, f_shader_code);
 }
 
 void Shader::use()
 {
-	glUseProgram(id);
-}
-void Shader::unuse()
-{
-	glDeleteProgram(id);
+	_UseShader(id);
 }
 
 void Shader::setBool(const std::string& name, bool value) const

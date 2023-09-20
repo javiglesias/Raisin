@@ -1,7 +1,6 @@
 #ifndef C__SHADER_H
 #define C__SHADER_H
-
-#include "glm.hpp"
+#include "RenderAPI.h"
 #include <string>
 class Shader
 {
@@ -14,7 +13,6 @@ public:
 		printf("~SHADER\n");
 	}
 	void use();
-	void unuse();
 	void setBool(const std::string &name, bool value) const;
 	void setFloat(const std::string &name, float value) const;
 	void setInt(const std::string& name, int value) const;

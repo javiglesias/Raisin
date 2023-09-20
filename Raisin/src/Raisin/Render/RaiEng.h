@@ -1,59 +1,39 @@
 #pragma once
-
-#include "../Input/Input.h"
-// GLAD goes first
-#include "glad/glad.h"
-// GLFW goes second
-#include "GLFW/glfw3.h"
-
+#include "Model.h"
 #include "../imgui/imgui.h"
 #include "../imgui/imgui_impl_glfw.h"
 #include "../imgui/imgui_impl_opengl3.h"
+#include "../imgui/ImFileDialog.h"
+#include "../imgui/imgui_node_editor.h"
 
-#include <windows.h>
-
-#define _OPENGL
-
-#ifdef _OPENGL
 namespace RaisinEng
 {
-	void mouse_press_callback(int _button, int _action, int _mods);
+	inline float	 fCameraSpeed = .4f;
+	inline glm::vec3 vCameraPosition(0.f);
+	inline glm::vec3 vCameraForward(0.f, 0.f, 1.f);
+	inline glm::vec3 vCameraUp(0.f, 1.f, 0.f);
+	inline glm::vec3 vCameraRight(1.f, 0.f, 0.f);
+	inline glm::vec3 vUp(0.f, 1.f, 0.f);
+	inline glm::mat4 mModelMatrix{ 1.f };
+	inline glm::mat4 mViewMatrix{ 1.f };
+	inline glm::mat4 mProjectionMatrix{ 1.f };
 
+	void mouse_press_callback(int _button, int _action, int _mods);
+	void _process_input(GLFWwindow* _window);
 	void Editor_Init();
 	void Editor_Loop();
 	void Editor_Close();
 
 	inline GLFWwindow* m_window = nullptr;
 	inline bool Foolscreen = true;
-	inline void mouse_press_callback(GLFWwindow* _window, int _button, int _action, int _mods)
-	{
-		mouse_press_callback(_button, _action, _mods);
-	}
+	inline ax::NodeEditor::EditorContext* m_Context;
 
 	inline void framebuffer_size_callback(GLFWwindow* _window, int _width, int _height)
 	{
-		glViewport(0, 0, _width, _height);
+		glViewport(0, 0, _width, _height);	
 	}
-
-	inline void process_input(GLFWwindow* _window)
-	{
-		// BASIC ENGINE INPUT
-		glfwSetWindowShouldClose(_window, glfwGetKey(m_window, GLFW_KEY_ESCAPE));
-	}
-
-	inline void _Destroy()
-	{
-		Editor_Close();
-		glfwTerminate();
-	}
-	inline void Editor_Close()
-	{
-		ImGui_ImplGlfw_Shutdown();
-		ImGui::DestroyContext();
-	}
-
+	void _Destroy();
+	void Editor_Close();
 	void _Loop();
-
-	void _Init(int _Width = 1920, int _Height = 1080, const char* _AppName = "RaisinEngine");
+	void _Init(int _Width = 800, int _Height = 600, const char* _AppName = "RaisinEngine");
 };
-#endif

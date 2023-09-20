@@ -12,4 +12,8 @@
 
 #include <cstdio>
 #include "Vector.h"
+#include "Input/Input.h"
+
+#define PI 3.14
+#define PIPI 2*3.14
 

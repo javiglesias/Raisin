@@ -9,6 +9,14 @@
       <Configuration>Release</Configuration>
       <Platform>x64</Platform>
     </ProjectConfiguration>
+    <ProjectConfiguration Include="Vulkan_Debug|x64">
+      <Configuration>Vulkan_Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Vulkan_Release|x64">
+      <Configuration>Vulkan_Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
@@ -24,12 +32,25 @@
     <PlatformToolset>v143</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Vulkan_Debug|x64'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>v143</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
-    <CharacterSet>Unicode</CharacterSet>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Vulkan_Release|x64'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
@@ -39,7 +60,13 @@
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Vulkan_Debug|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Vulkan_Release|x64'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
@@ -47,30 +74,62 @@
     <OutDir>$(SolutionDir)\bin\$(Platform)\$(Configuration)\</OutDir>
     <IntDir>$(SolutionDir)bin-int\$(ProjectName)$(Platform)\$(Configuration)\</IntDir>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Vulkan_Debug|x64'">
+    <OutDir>$(SolutionDir)\bin\$(Platform)\$(Configuration)\</OutDir>
+    <IntDir>$(SolutionDir)bin-int\$(ProjectName)$(Platform)\$(Configuration)\</IntDir>
+  </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <OutDir>$(SolutionDir)\bin\$(Platform)\$(Configuration)\</OutDir>
     <IntDir>$(SolutionDir)bin-int\$(ProjectName)$(Platform)\$(Configuration)\</IntDir>
+    <IncludePath>$(IncludePath)</IncludePath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Vulkan_Release|x64'">
+    <OutDir>$(SolutionDir)\bin\$(Platform)\$(Configuration)\</OutDir>
+    <IntDir>$(SolutionDir)bin-int\$(ProjectName)$(Platform)\$(Configuration)\</IntDir>
+    <IncludePath>$(IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
       <WarningLevel>Level4</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>__RAISIN_DLL_BUILD;_WINDOWS;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>__RAISIN_DLL_BUILD;_OPENGL;_WINDOWS;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>Default</ConformanceMode>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <LanguageStandard_C>stdc17</LanguageStandard_C>
       <AssemblerOutput>AssemblyCode</AssemblerOutput>
-      <AdditionalIncludeDirectories>$(ProjectDir)src\ThridParty\FMOD SoundSystem\FMOD Studio API Windows\api\core\inc;$(ProjectDir)src\ThirdParty\glm-0.9.9.8;$(ProjectDir)src\ThirdParty\glad-master\include;$(ProjectDir)src\ThirdParty\glfw-master\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\dev\Raisin\Raisin\src\ThirdParty\glfw-master\include;C:\VulkanSDK\1.3.231.1\Include;$(ProjectDir)src\ThridParty\FMOD SoundSystem\FMOD Studio API Windows\api\core\inc;$(ProjectDir)src\ThirdParty\assimp-3.1.1\include;$(ProjectDir)src\ThirdParty\glm-0.9.9.8;$(ProjectDir)src\ThirdParty\glad-master\include;$(ProjectDir)src\ThirdParty\glfw-master\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <ShowIncludes>true</ShowIncludes>
+      <ShowIncludes>false</ShowIncludes>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(SolutionDir)Raisin\src\ThirdParty\FMOD SoundSystem\FMOD Studio API Windows\api\core\lib\x64;$(SolutionDir)Raisin\src\ThirdParty\glad-master\Debug;$(SolutionDir)bin\;$(SolutionDir)Raisin\src\ThirdParty\glfw-master\Debug\Lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>C:\VulkanSDK\1.3.231.1\Lib;$(SolutionDir)Raisin\src\ThirdParty\FMOD SoundSystem\FMOD Studio API Windows\api\core\lib\x64;$(SolutionDir)Raisin\src\ThirdParty\glad-master\Debug;$(SolutionDir)Raisin\src\ThirdParty\assimp-3.1.1\lib64;$(SolutionDir)bin\;$(SolutionDir)Raisin\src\ThirdParty\glfw-master\Debug\Lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <GenerateMapFile>true</GenerateMapFile>
       <AssemblyDebug>true</AssemblyDebug>
-      <AdditionalDependencies>glad.lib;glfw3.lib;fmod_vc.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>glad.lib;glfw3.lib;fmod_vc.lib;assimp.lib;vulkan-1.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Vulkan_Debug|x64'">
+    <ClCompile>
+      <WarningLevel>Level4</WarningLevel>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>__RAISIN_DLL_BUILD;_VULKAN;_WINDOWS;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>Default</ConformanceMode>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+      <LanguageStandard_C>stdc17</LanguageStandard_C>
+      <AssemblerOutput>AssemblyCode</AssemblerOutput>
+      <AdditionalIncludeDirectories>C:\dev\Raisin\Raisin\src\ThirdParty\glfw-master\include;C:\VulkanSDK\1.3.231.1\Include;$(ProjectDir)src\ThridParty\FMOD SoundSystem\FMOD Studio API Windows\api\core\inc;$(ProjectDir)src\ThirdParty\assimp-3.1.1\include;$(ProjectDir)src\ThirdParty\glm-0.9.9.8;$(ProjectDir)src\ThirdParty\glad-master\include;$(ProjectDir)src\ThirdParty\glfw-master\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <ShowIncludes>false</ShowIncludes>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalLibraryDirectories>C:\VulkanSDK\1.3.231.1\Lib;$(SolutionDir)Raisin\src\ThirdParty\FMOD SoundSystem\FMOD Studio API Windows\api\core\lib\x64;$(SolutionDir)Raisin\src\ThirdParty\glad-master\Debug;$(SolutionDir)Raisin\src\ThirdParty\assimp-3.1.1\lib64;$(SolutionDir)bin\;$(SolutionDir)Raisin\src\ThirdParty\glfw-master\Debug\Lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <GenerateMapFile>true</GenerateMapFile>
+      <AssemblyDebug>true</AssemblyDebug>
+      <AdditionalDependencies>glad.lib;glfw3.lib;fmod_vc.lib;assimp.lib;vulkan-1.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -79,22 +138,50 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>__RAISIN_DLL_BUILD;_WINDOWS;NDEBUG;_CONSOLE;_GAME;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>__RAISIN_DLL_BUILD;_OPENGL;_WINDOWS;NDEBUG;_CONSOLE;_GAME;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>Default</ConformanceMode>
       <LanguageStandard>Default</LanguageStandard>
       <LanguageStandard_C>stdc11</LanguageStandard_C>
-      <AdditionalIncludeDirectories>$(ProjectDir)src\ThridParty\FMOD SoundSystem\FMOD Studio API Windows\api\core\inc;$(ProjectDir)src\ThirdParty\glm-0.9.9.8;$(ProjectDir)src\ThirdParty\glad-master\include;$(ProjectDir)src\ThirdParty\glfw-master\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <ShowIncludes>true</ShowIncludes>
+      <AdditionalIncludeDirectories>C:\dev\Raisin\Raisin\src\ThirdParty\glfw-master\include;C:\VulkanSDK\1.3.231.1\Include;$(ProjectDir)src\ThridParty\FMOD SoundSystem\FMOD Studio API Windows\api\core\inc;$(ProjectDir)src\ThirdParty\assimp-3.1.1\include;$(ProjectDir)src\ThirdParty\glm-0.9.9.8;$(ProjectDir)src\ThirdParty\glad-master\include;C:\VulkanSDK\1.3.231.1\Include;$(ProjectDir)src\ThirdParty\glfw-master\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <ShowIncludes>false</ShowIncludes>
+      <AssemblerOutput>All</AssemblerOutput>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(SolutionDir)Raisin\src\ThirdParty\FMOD SoundSystem\FMOD Studio API Windows\api\core\lib\x64;$(SolutionDir)Raisin\src\ThirdParty\glad-master\Debug;$(SolutionDir)bin\;$(SolutionDir)Raisin\src\ThirdParty\glfw-master\Debug\Lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>C:\VulkanSDK\1.3.231.1\Lib;$(SolutionDir)Raisin\src\ThirdParty\FMOD SoundSystem\FMOD Studio API Windows\api\core\lib\x64;$(SolutionDir)Raisin\src\ThirdParty\glad-master\Debug;$(SolutionDir)Raisin\src\ThirdParty\assimp-3.1.1\lib64;$(SolutionDir)bin\;$(SolutionDir)Raisin\src\ThirdParty\glfw-master\Release\Lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <GenerateMapFile>true</GenerateMapFile>
       <AssemblyDebug>true</AssemblyDebug>
-      <AdditionalDependencies>glad.lib;glfw3.lib;opengl32.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>glad.lib;glfw3.lib;fmod_vc.lib;assimp.lib;vulkan-1.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
+      <MapExports>true</MapExports>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Vulkan_Release|x64'">
+    <ClCompile>
+      <WarningLevel>Level4</WarningLevel>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>__RAISIN_DLL_BUILD;_VULKAN;_WINDOWS;NDEBUG;_CONSOLE;_GAME;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>Default</ConformanceMode>
+      <LanguageStandard>Default</LanguageStandard>
+      <LanguageStandard_C>stdc11</LanguageStandard_C>
+      <AdditionalIncludeDirectories>C:\dev\Raisin\Raisin\src\ThirdParty\glfw-master\include;C:\VulkanSDK\1.3.231.1\Include;$(ProjectDir)src\ThridParty\FMOD SoundSystem\FMOD Studio API Windows\api\core\inc;$(ProjectDir)src\ThirdParty\assimp-3.1.1\include;$(ProjectDir)src\ThirdParty\glm-0.9.9.8;$(ProjectDir)src\ThirdParty\glad-master\include;C:\VulkanSDK\1.3.231.1\Include;$(ProjectDir)src\ThirdParty\glfw-master\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <ShowIncludes>false</ShowIncludes>
+      <AssemblerOutput>All</AssemblerOutput>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalLibraryDirectories>C:\VulkanSDK\1.3.231.1\Lib;$(SolutionDir)Raisin\src\ThirdParty\FMOD SoundSystem\FMOD Studio API Windows\api\core\lib\x64;$(SolutionDir)Raisin\src\ThirdParty\glad-master\Debug;$(SolutionDir)Raisin\src\ThirdParty\assimp-3.1.1\lib64;$(SolutionDir)bin\;$(SolutionDir)Raisin\src\ThirdParty\glfw-master\Release\Lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <GenerateMapFile>true</GenerateMapFile>
+      <AssemblyDebug>true</AssemblyDebug>
+      <AdditionalDependencies>glad.lib;glfw3.lib;fmod_vc.lib;assimp.lib;vulkan-1.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
+      <MapExports>true</MapExports>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -102,29 +189,56 @@
     <ClInclude Include="src\Raisin\Core.hpp" />
     <ClInclude Include="src\Raisin.hpp" />
     <ClInclude Include="src\Raisin\EntryPoint.h" />
+    <ClInclude Include="src\Raisin\imgui\crude_json.h" />
     <ClInclude Include="src\Raisin\imgui\imconfig.h" />
     <ClInclude Include="src\Raisin\imgui\ImFileDialog.h" />
     <ClInclude Include="src\Raisin\imgui\imgui.h" />
+    <ClInclude Include="src\Raisin\imgui\imgui_bezier_math.h" />
+    <ClInclude Include="src\Raisin\imgui\imgui_canvas.h" />
+    <ClInclude Include="src\Raisin\imgui\imgui_extra_math.h" />
     <ClInclude Include="src\Raisin\imgui\imgui_impl_glfw.h" />
     <ClInclude Include="src\Raisin\imgui\imgui_impl_opengl3.h" />
     <ClInclude Include="src\Raisin\imgui\imgui_internal.h" />
+    <ClInclude Include="src\Raisin\imgui\imgui_node_editor.h" />
+    <ClInclude Include="src\Raisin\imgui\imgui_node_editor_internal.h" />
     <ClInclude Include="src\Raisin\imgui\imstb_rectpack.h" />
     <ClInclude Include="src\Raisin\imgui\imstb_textedit.h" />
     <ClInclude Include="src\Raisin\imgui\imstb_truetype.h" />
     <ClInclude Include="src\Raisin\Input\Input.h" />
+    <ClInclude Include="src\Raisin\Render\DirectX\DX12API.h" />
+    <ClInclude Include="src\Raisin\Render\Mesh.h" />
+    <ClInclude Include="src\Raisin\Render\Model.h" />
+    <ClInclude Include="src\Raisin\Render\Opengl\OpenglAPI.h" />
+    <ClInclude Include="src\Raisin\Render\Primitives.h" />
     <ClInclude Include="src\Raisin\Render\RaiEng.h" />
+    <ClInclude Include="src\Raisin\Render\RenderAPI.h" />
+    <ClInclude Include="src\Raisin\Render\Shader.h" />
+    <ClInclude Include="src\Raisin\Render\Vulkan\VulkanAPI.h" />
     <ClInclude Include="src\Raisin\Vector.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Raisin\Application.cpp" />
+    <ClCompile Include="src\Raisin\imgui\crude_json.cpp" />
     <ClCompile Include="src\Raisin\imgui\ImFileDialog.cpp" />
     <ClCompile Include="src\Raisin\imgui\imgui.cpp" />
+    <ClCompile Include="src\Raisin\imgui\imgui_canvas.cpp" />
     <ClCompile Include="src\Raisin\imgui\imgui_draw.cpp" />
     <ClCompile Include="src\Raisin\imgui\imgui_impl_glfw.cpp" />
     <ClCompile Include="src\Raisin\imgui\imgui_impl_opengl3.cpp" />
+    <ClCompile Include="src\Raisin\imgui\imgui_node_editor.cpp" />
+    <ClCompile Include="src\Raisin\imgui\imgui_node_editor_api.cpp" />
     <ClCompile Include="src\Raisin\imgui\imgui_tables.cpp" />
     <ClCompile Include="src\Raisin\imgui\imgui_widgets.cpp" />
+    <ClCompile Include="src\Raisin\Input\Input.cpp" />
+    <ClCompile Include="src\Raisin\Render\Mesh.cpp" />
+    <ClCompile Include="src\Raisin\Render\Model.cpp" />
     <ClCompile Include="src\Raisin\Render\RaiEng.cpp" />
+    <ClCompile Include="src\Raisin\Render\Shader.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="src\Raisin\imgui\imgui_bezier_math.inl" />
+    <None Include="src\Raisin\imgui\imgui_extra_math.inl" />
+    <None Include="src\Raisin\imgui\imgui_node_editor_internal.inl" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
