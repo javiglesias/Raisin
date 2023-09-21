@@ -8,13 +8,19 @@
 
 namespace RaisinEng
 {
-	inline float	 fCameraSpeed = .4f;
+	inline float	fCameraSpeed = .4f;
+	inline float	fLastXPosition = 0.f;
+	inline float	fLastYPosition = 0.f;
+	inline float	fYaw = 0.f;
+	inline float	fPitch = 0.f;
 	inline glm::vec3 vCameraPosition(0.f);
+	inline glm::vec3 vLightPosition(0.f);
 	inline glm::vec3 vCameraForward(0.f, 0.f, 1.f);
 	inline glm::vec3 vCameraUp(0.f, 1.f, 0.f);
 	inline glm::vec3 vCameraRight(1.f, 0.f, 0.f);
 	inline glm::vec3 vUp(0.f, 1.f, 0.f);
 	inline glm::mat4 mModelMatrix{ 1.f };
+	inline glm::mat4 mLightModelMatrix{ 1.f };
 	inline glm::mat4 mViewMatrix{ 1.f };
 	inline glm::mat4 mProjectionMatrix{ 1.f };
 

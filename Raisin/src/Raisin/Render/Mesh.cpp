@@ -14,9 +14,10 @@ Mesh::Mesh(std::vector<Vertex> _vertices, std::vector<unsigned int> _indices, st
 }
 
 void Mesh::Draw(Shader* _Shader, glm::mat4 model, glm::mat4 view, 
-	glm::mat4 projection, glm::vec3 camera_position)
+	glm::mat4 projection, glm::vec3 camera_position, glm::vec3 _lightPosition)
 {
-	_DrawElements(model, view, projection, camera_position, _Shader->id, VAO, GL_TRIANGLES, indices.size());
+	glPolygonMode(GL_FRONT, GL_FILL);
+	_DrawElements(model, view, projection, camera_position, _lightPosition, _Shader->id, VAO, GL_TRIANGLES, indices.size());
 }
 
 void Mesh::setupMesh()

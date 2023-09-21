@@ -17,7 +17,7 @@ public:
 		loadModel(path);
 	}
 	void Draw(Shader* _Shader, glm::mat4 model, glm::mat4 view, glm::mat4 projection, 
-		glm::vec3 camera_position);
+		glm::vec3 camera_position, glm::vec3 _lightPosition);
 private:
 	char customTexture[128] = "resources/textures/WoddenBox"; // "customTexture"_specular.png
 	std::vector<Mesh> meshes;

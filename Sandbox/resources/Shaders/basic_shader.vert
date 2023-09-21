@@ -15,9 +15,7 @@ out vec3 frag_position;
 
 void main()
 {	
-	vec4 current_position = vec4(aPos.x + gl_InstanceID, aPos.y, gl_InstanceID + aPos.z, 1.0); 
-	// position where draw the current instance
-	gl_Position = ProjectionMatrix * ViewMatrix * ModelMatrix * current_position;
+	gl_Position = ProjectionMatrix * ViewMatrix * ModelMatrix * vec4(aPos, 1.0);
 	texCoord = aTexCoord;
 	frag_position = aPos;
 	normal = aNormal;

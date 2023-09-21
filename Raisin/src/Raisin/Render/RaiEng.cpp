@@ -19,14 +19,14 @@ void _camera_move_callback(int _key)
 		case GLFW_KEY_W:
 			RaisinEng::vCameraPosition += RaisinEng::fCameraSpeed * RaisinEng::vCameraForward;
 			break;
-		case GLFW_KEY_A:
+		case GLFW_KEY_D:
 			RaisinEng::vCameraPosition -= glm::normalize(glm::cross(
 				RaisinEng::vCameraUp, RaisinEng::vCameraForward)) * RaisinEng::fCameraSpeed;
 			break;
 		case GLFW_KEY_S:
 			RaisinEng::vCameraPosition -= RaisinEng::fCameraSpeed * RaisinEng::vCameraForward;
 			break;
-		case GLFW_KEY_D:
+		case GLFW_KEY_A:
 			RaisinEng::vCameraPosition += glm::normalize(glm::cross(
 				RaisinEng::vCameraUp, RaisinEng::vCameraForward)) * RaisinEng::fCameraSpeed;
 			break;
@@ -34,7 +34,28 @@ void _camera_move_callback(int _key)
 			break;
 	}
 }
-void _mouse_press_callback(GLFWwindow* _window, int x, int y, int button){}
+void _mouse_press_callback(GLFWwindow* _window, int x, int y, int button)
+{
+	//float_t x_offset = ((float_t)x - RaisinEng::fLastXPosition);
+	//float_t y_offset = (RaisinEng::fLastYPosition - (float_t)y);
+	//float_t senseo = 0.1f;
+	//RaisinEng::fLastXPosition = (float_t)x;
+	//RaisinEng::fLastYPosition = (float_t)y;
+	//x_offset *= senseo;
+	//y_offset *= senseo;
+	//RaisinEng::fYaw += x_offset;
+	//RaisinEng::fPitch += y_offset;
+	//// CONSTRAINTS
+	//if (RaisinEng::fPitch > 89.0f)  RaisinEng::fPitch = 89.0f;
+	//if (RaisinEng::fPitch < -89.0f) RaisinEng::fPitch = -89.0f;
+	//glm::vec3 camera_direction;
+	//camera_direction.x = cos(glm::radians(RaisinEng::fYaw)) * cos(glm::radians(RaisinEng::fPitch));
+	//camera_direction.y = sin(glm::radians(RaisinEng::fPitch));
+	//camera_direction.z = sin(glm::radians(RaisinEng::fYaw)) * cos(glm::radians(RaisinEng::fPitch));
+	//RaisinEng::vCameraForward = glm::normalize(camera_direction);
+	//RaisinEng::fLastXPosition = (float_t)x;
+	//RaisinEng::fLastYPosition = (float_t)y;
+}
 
 void RaisinEng::_process_input(GLFWwindow* _window)
 {
@@ -48,7 +69,8 @@ void RaisinEng::_process_input(GLFWwindow* _window)
 	}
 }
 inline Model* oTempModelToCreate = nullptr;
-inline Shader* oShader = nullptr;
+inline Model* oLigthModel = nullptr;
+inline Shader* oShader = nullptr, * oLightShader = nullptr;
 void RaisinEng::_Init(int _Width, int _Height, const char* _AppName)
 {
 	m_window = &_CreateWindow("Raisin", 800, 600);
@@ -63,9 +85,11 @@ void RaisinEng::_Init(int _Width, int _Height, const char* _AppName)
 	_add_callback_input(eINPUTKEY(GLFW_KEY_S), _camera_move_callback);
 	_add_callback_input(eINPUTKEY(GLFW_KEY_D),_camera_move_callback);
 
-	char sModelPath[128] = "resources/models/BasicShapes/Sphere.obj";
-	oTempModelToCreate = new Model(sModelPath);
-	oShader = new Shader("resources/Shaders/basic_shader.vert", "resources/Shaders/basic_shape_shader.frag");
+	oTempModelToCreate = new Model("resources/models/BasicShapes/Sphere.obj");
+	oLigthModel = new Model("resources/models/BasicShapes/LightBulb.obj");
+
+	oShader = new Shader("resources/Shaders/basic_shader.vert", "resources/Shaders/basic_shader.frag");
+	oLightShader = new Shader("resources/Shaders/basic_shader.vert", "resources/Shaders/basic_shape_shader.frag");
 }
 
 void RaisinEng::Editor_Init()
@@ -96,10 +120,12 @@ void RaisinEng::_Loop()
 		mProjectionMatrix = glm::perspective(glm::radians(40.f),
 			(800.f / 600.f), 0.3f, 100.f);
 		mModelMatrix = glm::translate(glm::mat4(1.f),glm::vec3(0.f));
+		mLightModelMatrix = glm::translate(glm::mat4(1.f), vLightPosition);
 		mViewMatrix = glm::lookAt(vCameraPosition, vCameraPosition + vCameraForward,
 			vCameraUp);
 		mPrimitive._draw(mModelMatrix, mViewMatrix, mProjectionMatrix, vCameraPosition);
-		oTempModelToCreate->Draw(oShader, mModelMatrix, mViewMatrix, mProjectionMatrix, vCameraPosition);
+		oTempModelToCreate->Draw(oShader, mModelMatrix, mViewMatrix, mProjectionMatrix, vCameraPosition, vLightPosition);
+		oLigthModel->Draw(oLightShader, mLightModelMatrix, mViewMatrix, mProjectionMatrix, vCameraPosition, vLightPosition);
 #ifdef _OPENGL
 		Editor_Loop();
 #endif
@@ -134,8 +160,13 @@ void RaisinEng::Editor_Loop()
 	};
 	ImGui::Begin("World");
 	{
-		if (ImGui::Button("Open a texture"))
-			ifd::FileDialog::Instance().Open("TextureOpenDialog", "Open a texture", "Image file (*.png;*.jpg;*.jpeg;*.bmp;*.tga){.png,.jpg,.jpeg,.bmp,.tga},.*");
+		if (ImGui::Button("Open a model"))
+			ifd::FileDialog::Instance().Open("ModelOpenDialog", "Open a model", "obj Model (*.obj)");
+		float tempLightPos[3] = {vLightPosition.x, vLightPosition.y, vLightPosition.z};
+		ImGui::DragFloat3("Light Position", tempLightPos);
+		vLightPosition.x = tempLightPos[0];
+		vLightPosition.y = tempLightPos[1];
+		vLightPosition.z = tempLightPos[2];
 	//	// nodegraph editor
 	//	ax::NodeEditor::Config config;
 	//	config.SettingsFile = "Simple.json";
@@ -159,10 +190,10 @@ void RaisinEng::Editor_Loop()
 		ImGui::End();
 	}
 
-	if (ifd::FileDialog::Instance().IsDone("TextureOpenDialog")) {
+	if (ifd::FileDialog::Instance().IsDone("ModelOpenDialog")) {
 		if (ifd::FileDialog::Instance().HasResult()) {
 			std::string res = ifd::FileDialog::Instance().GetResult().u8string();
-			printf("OPEN[%s]\n", res.c_str());
+			oTempModelToCreate = new Model(res);
 		}
 		ifd::FileDialog::Instance().Close();
 	}

@@ -43,7 +43,6 @@ inline GLFWwindow& _CreateWindow(const char* _name, int _Width, int _Height)
 		exit(-1);
 	}
 	glViewport(0, 0, _Width, _Height);
-	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	return *m_window;
 }
 
@@ -183,21 +182,28 @@ inline void _DrawArrays(glm::mat4 _ModelMatrix, glm::mat4 _ViewMatrix, glm::mat4
 }
 
 inline void _DrawElements(glm::mat4 _ModelMatrix, glm::mat4 _ViewMatrix, glm::mat4 _ProjectionMatrix, glm::vec3 _CameraPosition,
-	unsigned int _shader, unsigned int _VAO, unsigned int _primitive, int _indicesSize)
+	glm::vec3 _LightPosition, unsigned int _shader, unsigned int _VAO, unsigned int _primitive, int _indicesSize)
 {
 	// obtenemos los uniforms para las transformaciones 3d
 	unsigned int modelMatrix_location = glGetUniformLocation(_shader, "ModelMatrix");
 	unsigned int viewMatrix_location = glGetUniformLocation(_shader, "ViewMatrix");
 	unsigned int projectionMatrix_location = glGetUniformLocation(_shader, "ProjectionMatrix");
-	unsigned int cameraPosition_location = glGetUniformLocation(_shader, "CameraPosition");
+	unsigned int cameraPosition_location = glGetUniformLocation(_shader, "ViewerPosition");
+	unsigned int lightPosition_location = glGetUniformLocation(_shader, "LightPosition");
+	unsigned int lightColor_location = glGetUniformLocation(_shader, "LightColor");
 
 	_UseShader(_shader);
+	glm::vec3 _LightColor {1.f, 0.f, 1.f};
 	glBindVertexArray(_VAO);
 	// Mandamos los uniforms a la GPU
 	if (modelMatrix_location != -1)
 		glUniformMatrix4fv(modelMatrix_location, 1, GL_FALSE, value_ptr(_ModelMatrix));
 	if (cameraPosition_location != -1)
 		glUniform3fv(cameraPosition_location, 1, value_ptr(_CameraPosition));
+	if (lightPosition_location != -1)
+		glUniform3fv(lightPosition_location, 1, value_ptr(_LightPosition));
+	if (lightColor_location != -1)
+		glUniform3fv(lightColor_location, 1, value_ptr(_LightColor));
 	if (viewMatrix_location != -1)
 		glUniformMatrix4fv(viewMatrix_location, 1, GL_FALSE, value_ptr(_ViewMatrix));
 	if (projectionMatrix_location != -1)
