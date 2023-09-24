@@ -36,6 +36,7 @@ public:
 	void _draw(glm::mat4 _ModelMatrix, glm::mat4 _ViewMatrix, glm::mat4 _ProjectionMatrix, glm::vec3 _CameraPosition)
 	{
 		glPolygonMode(GL_FRONT, GL_LINE);
-		_DrawArrays(_ModelMatrix, _ViewMatrix, _ProjectionMatrix, _CameraPosition, mShader.id, VAO, GL_POINTS, 0, 48);
+		_DrawArrays(_ModelMatrix, _ViewMatrix, _ProjectionMatrix, _CameraPosition, mShader.id, 
+			VAO, GL_POINTS, 0, 48);
 	}
 };

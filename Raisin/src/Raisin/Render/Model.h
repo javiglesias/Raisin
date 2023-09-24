@@ -12,17 +12,23 @@ class Model
 {
 public:
 	Model(){}
-	Model(std::string path)
+	Model(std::string path, Material* _Material)
 	{
+		mMaterial = _Material;
 		loadModel(path);
 	}
-	void Draw(Shader* _Shader, glm::mat4 model, glm::mat4 view, glm::mat4 projection, 
-		glm::vec3 camera_position, glm::vec3 _lightPosition);
+	Material* GetMaterial() const { return mMaterial; }
+	void Draw(glm::mat4 view, glm::mat4 projection, glm::vec3 camera_position, glm::vec3 _lightPosition, glm::vec3 _lightColor);
 private:
 	char customTexture[128] = "resources/textures/WoddenBox"; // "customTexture"_specular.png
+	int width, heigth, nr_channels;
 	std::vector<Mesh> meshes;
 	std::string directory;
-	int width, heigth, nr_channels;
+	Material* mMaterial;
+public:
+	glm::vec3 mPosition {0.f};
+	glm::vec3 mColor{ 0.f };
+private:
 	bool loadModel(std::string path);
 	void processNode(aiNode *node, const aiScene *scene);
 	Mesh processMesh(aiMesh* mesh, const aiScene* scene);

@@ -11,7 +11,7 @@ extern "C"
 {
 	__declspec(dllexport) int AmdPowerXpressRequestHighPerformance = 1;
 }
-
+//Callbacks
 void _camera_move_callback(int _key)
 {
 	switch (_key)
@@ -36,27 +36,37 @@ void _camera_move_callback(int _key)
 }
 void _mouse_press_callback(GLFWwindow* _window, int x, int y, int button)
 {
-	//float_t x_offset = ((float_t)x - RaisinEng::fLastXPosition);
-	//float_t y_offset = (RaisinEng::fLastYPosition - (float_t)y);
-	//float_t senseo = 0.1f;
-	//RaisinEng::fLastXPosition = (float_t)x;
-	//RaisinEng::fLastYPosition = (float_t)y;
-	//x_offset *= senseo;
-	//y_offset *= senseo;
-	//RaisinEng::fYaw += x_offset;
-	//RaisinEng::fPitch += y_offset;
-	//// CONSTRAINTS
-	//if (RaisinEng::fPitch > 89.0f)  RaisinEng::fPitch = 89.0f;
-	//if (RaisinEng::fPitch < -89.0f) RaisinEng::fPitch = -89.0f;
-	//glm::vec3 camera_direction;
-	//camera_direction.x = cos(glm::radians(RaisinEng::fYaw)) * cos(glm::radians(RaisinEng::fPitch));
-	//camera_direction.y = sin(glm::radians(RaisinEng::fPitch));
-	//camera_direction.z = sin(glm::radians(RaisinEng::fYaw)) * cos(glm::radians(RaisinEng::fPitch));
-	//RaisinEng::vCameraForward = glm::normalize(camera_direction);
-	//RaisinEng::fLastXPosition = (float_t)x;
-	//RaisinEng::fLastYPosition = (float_t)y;
+	if (button == 0 && !RaisinEng::bMouseCaptured)
+		RaisinEng::bMouseCaptured = true;
+	else if(button != 1 && RaisinEng::bMouseCaptured)
+		RaisinEng::bMouseCaptured = false;
 }
-
+void mouse_movement_callback(GLFWwindow* _window, double x, double y)
+{
+	float x_offset = (x - RaisinEng::fLastXPosition);
+	float y_offset = (RaisinEng::fLastYPosition - y);
+	float senseo = 0.1f;
+	RaisinEng::fLastXPosition = x;
+	RaisinEng::fLastYPosition = y;
+	if(RaisinEng::bMouseCaptured)
+	{
+		x_offset *= senseo;
+		y_offset *= senseo;
+		RaisinEng::fYaw += x_offset;
+		RaisinEng::fPitch += y_offset;
+		// CONSTRAINTS
+		if (RaisinEng::fPitch > 89.0f)  RaisinEng::fPitch = 89.0f;
+		if (RaisinEng::fPitch < -89.0f) RaisinEng::fPitch = -89.0f;
+		glm::vec3 camera_direction;
+		camera_direction.x = cos(glm::radians(RaisinEng::fYaw)) * cos(glm::radians(RaisinEng::fPitch));
+		camera_direction.y = sin(glm::radians(RaisinEng::fPitch));
+		camera_direction.z = sin(glm::radians(RaisinEng::fYaw)) * cos(glm::radians(RaisinEng::fPitch));
+		RaisinEng::vCameraForward = glm::normalize(camera_direction);
+		RaisinEng::fLastXPosition = x;
+		RaisinEng::fLastYPosition = y;
+	}
+}
+//API functions
 void RaisinEng::_process_input(GLFWwindow* _window)
 {
 	glfwSetWindowShouldClose(_window, glfwGetKey(_window, GLFW_KEY_ESCAPE));
@@ -68,14 +78,13 @@ void RaisinEng::_process_input(GLFWwindow* _window)
 		}
 	}
 }
-inline Model* oTempModelToCreate = nullptr;
-inline Model* oLigthModel = nullptr;
-inline Shader* oShader = nullptr, * oLightShader = nullptr;
+
 void RaisinEng::_Init(int _Width, int _Height, const char* _AppName)
 {
 	m_window = &_CreateWindow("Raisin", 800, 600);
 	glfwSetFramebufferSizeCallback(m_window, framebuffer_size_callback);
 	glfwSetMouseButtonCallback(m_window, _mouse_press_callback);
+	glfwSetCursorPosCallback(m_window, mouse_movement_callback);
 	glfwSetInputMode(m_window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
 #ifdef _OPENGL
 	Editor_Init();
@@ -85,11 +94,19 @@ void RaisinEng::_Init(int _Width, int _Height, const char* _AppName)
 	_add_callback_input(eINPUTKEY(GLFW_KEY_S), _camera_move_callback);
 	_add_callback_input(eINPUTKEY(GLFW_KEY_D),_camera_move_callback);
 
-	oTempModelToCreate = new Model("resources/models/BasicShapes/Sphere.obj");
-	oLigthModel = new Model("resources/models/BasicShapes/LightBulb.obj");
-
+	//Models && "Materials"
 	oShader = new Shader("resources/Shaders/basic_shader.vert", "resources/Shaders/basic_shader.frag");
 	oLightShader = new Shader("resources/Shaders/basic_shader.vert", "resources/Shaders/basic_shape_shader.frag");
+
+	oModelMaterial = new Material(oShader->id, false);
+	oLightMaterial = new Material(oShader->id, true, glm::vec3(0.f), Material::WIREFRAME);
+
+	oLight = new Model("resources/models/BasicShapes/LightBulb.obj", oLightMaterial);
+
+	oModelsToDraw[iCurrentModels] = new Model("resources/models/BasicShapes/Sphere.obj", oModelMaterial);
+	++iCurrentModels;
+	oModelsToDraw[iCurrentModels] = new Model("resources/models/BasicShapes/Backpack.obj", oModelMaterial);
+	++iCurrentModels;
 }
 
 void RaisinEng::Editor_Init()
@@ -111,26 +128,36 @@ void RaisinEng::Editor_Init()
 void RaisinEng::_Loop()
 {
 	sSphere mPrimitive;
+	float currentTimeFrame = 0, lastTimeFrame = 0, deltaTime = 0;
 	while (!glfwWindowShouldClose(m_window)) // Game loop
 	{
-		_process_input(m_window);
-		_ClearColorBuffer();
+		currentTimeFrame += glfwGetTime();
+		deltaTime = currentTimeFrame - lastTimeFrame;
+		lastTimeFrame = currentTimeFrame;
+		if(deltaTime >= 0.016f)
+		{
+			currentTimeFrame = 0.f;
+			_process_input(m_window);
+			_ClearColorBuffer();
 
-		// Renderables
-		mProjectionMatrix = glm::perspective(glm::radians(40.f),
-			(800.f / 600.f), 0.3f, 100.f);
-		mModelMatrix = glm::translate(glm::mat4(1.f),glm::vec3(0.f));
-		mLightModelMatrix = glm::translate(glm::mat4(1.f), vLightPosition);
-		mViewMatrix = glm::lookAt(vCameraPosition, vCameraPosition + vCameraForward,
-			vCameraUp);
-		mPrimitive._draw(mModelMatrix, mViewMatrix, mProjectionMatrix, vCameraPosition);
-		oTempModelToCreate->Draw(oShader, mModelMatrix, mViewMatrix, mProjectionMatrix, vCameraPosition, vLightPosition);
-		oLigthModel->Draw(oLightShader, mLightModelMatrix, mViewMatrix, mProjectionMatrix, vCameraPosition, vLightPosition);
-#ifdef _OPENGL
-		Editor_Loop();
-#endif
-		glfwSwapBuffers(m_window);
-		glfwPollEvents();
+			// Renderables
+			mProjectionMatrix = glm::perspective(glm::radians(40.f),
+				(800.f / 600.f), 0.3f, 100.f);
+			mViewMatrix = glm::lookAt(vCameraPosition, vCameraPosition + vCameraForward,
+				vCameraUp);
+			//mPrimitive._draw(mModelMatrix, mViewMatrix, mProjectionMatrix, vCameraPosition);
+			oLight->Draw(mViewMatrix, mProjectionMatrix, vCameraPosition, vLightPosition, oLight->GetMaterial()->mLightColor);
+			for (size_t i = 0; i < iCurrentModels; i++)
+			{
+				oModelsToDraw[i]->Draw(mViewMatrix, mProjectionMatrix, vCameraPosition, vLightPosition, oLight->GetMaterial()->mLightColor);
+			}
+	#ifdef _OPENGL
+			Editor_Loop();
+	#endif
+			glfwSwapBuffers(m_window);
+			glfwPollEvents();
+		}
+		// TODO: Ordenar los modelos por Material > Shaders
 	}
 }
 
@@ -139,6 +166,7 @@ void RaisinEng::Editor_Loop()
 	ImGui_ImplOpenGL3_NewFrame();
 	ImGui_ImplGlfw_NewFrame();
 	ImGui::NewFrame();
+	// Filedialog texture
 	ifd::FileDialog::Instance().CreateTexture = [](uint8_t* data, int w, int h, char fmt) -> void* {
 		GLuint tex;
 
@@ -158,6 +186,7 @@ void RaisinEng::Editor_Loop()
 		GLuint texID = (GLuint)tex;
 		glDeleteTextures(1, &texID);
 	};
+	//-- Filedialog texture
 	ImGui::Begin("World");
 	{
 		if (ImGui::Button("Open a model"))
@@ -167,33 +196,23 @@ void RaisinEng::Editor_Loop()
 		vLightPosition.x = tempLightPos[0];
 		vLightPosition.y = tempLightPos[1];
 		vLightPosition.z = tempLightPos[2];
-	//	// nodegraph editor
-	//	ax::NodeEditor::Config config;
-	//	config.SettingsFile = "Simple.json";
-	//	m_Context = ax::NodeEditor::CreateEditor(&config);
-	//	ax::NodeEditor::SetCurrentEditor(m_Context);
-	//	ax::NodeEditor::Begin("My Editor", ImVec2(0.0, 0.0f));
-	//	int uniqueId = 1;
-	//	// Start drawing nodes.
-	//	ax::NodeEditor::BeginNode(uniqueId++);
-	//	ImGui::Text("Node A");
-	//	ax::NodeEditor::BeginPin(uniqueId++, ax::NodeEditor::PinKind::Input);
-	//	ImGui::Text("-> In");
-	//	ax::NodeEditor::EndPin();
-	//	ImGui::SameLine();
-	//	ax::NodeEditor::BeginPin(uniqueId++, ax::NodeEditor::PinKind::Output);
-	//	ImGui::Text("Out ->");
-	//	ax::NodeEditor::EndPin();
-	//	ax::NodeEditor::EndNode();
-	//	ax::NodeEditor::End();
-	//	ax::NodeEditor::SetCurrentEditor(nullptr);
+		oLight->mPosition = vLightPosition;
+
+		float tempLightColor[3] = { oLight->GetMaterial()->mLightColor.x,
+			oLight->GetMaterial()->mLightColor.y, oLight->GetMaterial()->mLightColor.z };
+		ImGui::ColorEdit3("Light Color", tempLightColor);
+		oLight->GetMaterial()->mLightColor.x = tempLightColor[0];
+		oLight->GetMaterial()->mLightColor.y = tempLightColor[1];
+		oLight->GetMaterial()->mLightColor.z = tempLightColor[2];
 		ImGui::End();
 	}
 
 	if (ifd::FileDialog::Instance().IsDone("ModelOpenDialog")) {
 		if (ifd::FileDialog::Instance().HasResult()) {
 			std::string res = ifd::FileDialog::Instance().GetResult().u8string();
-			oTempModelToCreate = new Model(res);
+
+			oModelsToDraw[iCurrentModels] = new Model(res, oModelMaterial);
+			++iCurrentModels;
 		}
 		ifd::FileDialog::Instance().Close();
 	}

@@ -8,9 +8,11 @@
 
 namespace RaisinEng
 {
-	inline float	fCameraSpeed = .4f;
-	inline float	fLastXPosition = 0.f;
-	inline float	fLastYPosition = 0.f;
+	inline bool		bMouseCaptured	= false;
+	inline int		iCurrentModels	= 0;
+	inline float	fCameraSpeed	= .4f;
+	inline float	fLastXPosition	= 0.f;
+	inline float	fLastYPosition	= 0.f;
 	inline float	fYaw = 0.f;
 	inline float	fPitch = 0.f;
 	inline glm::vec3 vCameraPosition(0.f);
@@ -23,6 +25,10 @@ namespace RaisinEng
 	inline glm::mat4 mLightModelMatrix{ 1.f };
 	inline glm::mat4 mViewMatrix{ 1.f };
 	inline glm::mat4 mProjectionMatrix{ 1.f };
+	inline Shader* oShader = nullptr, * oLightShader = nullptr;
+	inline Model* oModelsToDraw[256];
+	inline Model* oLight;
+	inline Material* oModelMaterial, * oLightMaterial;
 
 	void mouse_press_callback(int _button, int _action, int _mods);
 	void _process_input(GLFWwindow* _window);

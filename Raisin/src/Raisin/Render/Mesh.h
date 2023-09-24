@@ -19,8 +19,8 @@ class Mesh
 
 public:
 	Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices, std::vector<Texture> textures);
-	void Draw(Shader* _Shader, glm::mat4 model, glm::mat4 view, glm::mat4 projection, glm::vec3 camera_position,
-		glm::vec3 _lightPosition);
+	void Draw(Material* _Material, glm::mat4 model, glm::mat4 view, glm::mat4 projection, glm::vec3 camera_position,
+		glm::vec3 _lightPosition, glm::vec3 _lightColor);
 
 private:
 // RENDER DATA.

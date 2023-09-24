@@ -12,6 +12,7 @@
 #include <iostream>
 #include <vector>
 #include <cstring>
+#include "Material.h"
 
 struct Vertex {
 	glm::vec3 position = glm::vec3(0);
@@ -124,7 +125,7 @@ inline void _DrawArrays(glm::mat4 _ModelMatrix, glm::mat4 _ViewMatrix, glm::mat4
 	return;
 }
 inline void _DrawElements(glm::mat4 _ModelMatrix, glm::mat4 _ViewMatrix, glm::mat4 _ProjectionMatrix, glm::vec3 _CameraPosition,
-	unsigned int _shader, unsigned int _VAO, unsigned int _primitive, int _indicesSize)
+	glm::vec3 _LightPosition, Material* _Material, unsigned int _VAO, unsigned int _primitive, int _indicesSize)
 {
-	_UseShader(_shader);
+	_UseShader(_Material->mShaderId);
 }

@@ -13,11 +13,12 @@ Mesh::Mesh(std::vector<Vertex> _vertices, std::vector<unsigned int> _indices, st
 	setupMesh();
 }
 
-void Mesh::Draw(Shader* _Shader, glm::mat4 model, glm::mat4 view, 
-	glm::mat4 projection, glm::vec3 camera_position, glm::vec3 _lightPosition)
+void Mesh::Draw(Material* _Material, glm::mat4 model, glm::mat4 view, 
+	glm::mat4 projection, glm::vec3 camera_position, glm::vec3 _lightPosition,
+	glm::vec3 _lightColor)
 {
-	glPolygonMode(GL_FRONT, GL_FILL);
-	_DrawElements(model, view, projection, camera_position, _lightPosition, _Shader->id, VAO, GL_TRIANGLES, indices.size());
+	_DrawElements(model, view, projection, camera_position, _lightPosition, _lightColor, _Material,
+		VAO, GL_TRIANGLES, indices.size());
 }
 
 void Mesh::setupMesh()

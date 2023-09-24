@@ -206,6 +206,7 @@
     <ClInclude Include="src\Raisin\imgui\imstb_truetype.h" />
     <ClInclude Include="src\Raisin\Input\Input.h" />
     <ClInclude Include="src\Raisin\Render\DirectX\DX12API.h" />
+    <ClInclude Include="src\Raisin\Render\Material.h" />
     <ClInclude Include="src\Raisin\Render\Mesh.h" />
     <ClInclude Include="src\Raisin\Render\Model.h" />
     <ClInclude Include="src\Raisin\Render\Opengl\OpenglAPI.h" />

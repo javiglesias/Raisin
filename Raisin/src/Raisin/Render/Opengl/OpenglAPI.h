@@ -1,4 +1,5 @@
 #pragma once
+#include "Material.h"
 // GLAD goes first
 #include "glad/glad.h"
 #include "GLFW/glfw3.h"
@@ -8,6 +9,7 @@
 #include <glad/glad.h>
 #include <iostream>
 #include <vector>
+
 
 struct Vertex {
 	glm::vec3 position = glm::vec3(0);
@@ -43,6 +45,7 @@ inline GLFWwindow& _CreateWindow(const char* _name, int _Width, int _Height)
 		exit(-1);
 	}
 	glViewport(0, 0, _Width, _Height);
+	glEnable(GL_DEPTH_TEST);
 	return *m_window;
 }
 
@@ -129,8 +132,8 @@ inline unsigned int _CreateBuffers(std::vector<unsigned int> _indices, std::vect
 
 inline void _ClearColorBuffer()
 {
-	glClearColor(0, 1.f, 0, 1.f);
-	glClear(GL_COLOR_BUFFER_BIT);
+	glClearColor(0, 188.f/255.f, 255.f, 1.f);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 
 inline unsigned int _Create2DSphere(float _Radio, float _CenterX, float _CenterY, float _Angle)
@@ -182,18 +185,20 @@ inline void _DrawArrays(glm::mat4 _ModelMatrix, glm::mat4 _ViewMatrix, glm::mat4
 }
 
 inline void _DrawElements(glm::mat4 _ModelMatrix, glm::mat4 _ViewMatrix, glm::mat4 _ProjectionMatrix, glm::vec3 _CameraPosition,
-	glm::vec3 _LightPosition, unsigned int _shader, unsigned int _VAO, unsigned int _primitive, int _indicesSize)
+	glm::vec3 _LightPosition, glm::vec3 _LightColor, Material* _Material, unsigned int _VAO, unsigned int _primitive, int _indicesSize)
 {
 	// obtenemos los uniforms para las transformaciones 3d
-	unsigned int modelMatrix_location = glGetUniformLocation(_shader, "ModelMatrix");
-	unsigned int viewMatrix_location = glGetUniformLocation(_shader, "ViewMatrix");
-	unsigned int projectionMatrix_location = glGetUniformLocation(_shader, "ProjectionMatrix");
-	unsigned int cameraPosition_location = glGetUniformLocation(_shader, "ViewerPosition");
-	unsigned int lightPosition_location = glGetUniformLocation(_shader, "LightPosition");
-	unsigned int lightColor_location = glGetUniformLocation(_shader, "LightColor");
+	unsigned int modelMatrix_location = glGetUniformLocation(_Material->mShaderId, "ModelMatrix");
+	unsigned int viewMatrix_location = glGetUniformLocation(_Material->mShaderId, "ViewMatrix");
+	unsigned int projectionMatrix_location = glGetUniformLocation(_Material->mShaderId, "ProjectionMatrix");
+	unsigned int cameraPosition_location = glGetUniformLocation(_Material->mShaderId, "ViewerPosition");
+	unsigned int lightPosition_location = glGetUniformLocation(_Material->mShaderId, "LightPosition");
+	unsigned int lightColor_location = glGetUniformLocation(_Material->mShaderId, "LightColor");
 
-	_UseShader(_shader);
-	glm::vec3 _LightColor {1.f, 0.f, 1.f};
+	unsigned int hasLightColor_location = glGetUniformLocation(_Material->mShaderId, "IsALight");
+
+	_UseShader(_Material->mShaderId);
+	glPolygonMode(GL_FRONT, _Material->mMode);
 	glBindVertexArray(_VAO);
 	// Mandamos los uniforms a la GPU
 	if (modelMatrix_location != -1)
@@ -204,6 +209,8 @@ inline void _DrawElements(glm::mat4 _ModelMatrix, glm::mat4 _ViewMatrix, glm::ma
 		glUniform3fv(lightPosition_location, 1, value_ptr(_LightPosition));
 	if (lightColor_location != -1)
 		glUniform3fv(lightColor_location, 1, value_ptr(_LightColor));
+	if(hasLightColor_location != -1)
+		glUniform1f(hasLightColor_location, (float)_Material->mIsALight);
 	if (viewMatrix_location != -1)
 		glUniformMatrix4fv(viewMatrix_location, 1, GL_FALSE, value_ptr(_ViewMatrix));
 	if (projectionMatrix_location != -1)
