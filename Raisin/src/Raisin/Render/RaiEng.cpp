@@ -95,17 +95,12 @@ void RaisinEng::_Init(int _Width, int _Height, const char* _AppName)
 	_add_callback_input(eINPUTKEY(GLFW_KEY_D),_camera_move_callback);
 
 	//Models && "Materials"
-	oShader = new Shader("resources/Shaders/basic_shader.vert", "resources/Shaders/basic_shader.frag");
-	oLightShader = new Shader("resources/Shaders/basic_shader.vert", "resources/Shaders/basic_shape_shader.frag");
-
-	oModelMaterial = new Material(oShader->id, false);
-	oLightMaterial = new Material(oShader->id, true, glm::vec3(0.f), Material::WIREFRAME);
+	oModelMaterial = new Material("basic_shader", "basic_shader", false);
+	oLightMaterial = new Material("basic_shader", "basic_shape_shader", true, glm::vec3(0.f), Material::WIREFRAME);
 
 	oLight = new Model("resources/models/BasicShapes/LightBulb.obj", oLightMaterial);
 
 	oModelsToDraw[iCurrentModels] = new Model("resources/models/BasicShapes/Sphere.obj", oModelMaterial);
-	++iCurrentModels;
-	oModelsToDraw[iCurrentModels] = new Model("resources/models/BasicShapes/Backpack.obj", oModelMaterial);
 	++iCurrentModels;
 }
 

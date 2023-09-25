@@ -14,3 +14,8 @@ map_Kd diffuse.jpg
 map_Bump normal.png
 map_Ks specular.jpg
 
+#MATERIAL
+[VERT: basic_shader]
+[FRAG: basic_shape_shader]
+[IS_A_LIGHT: false]
+

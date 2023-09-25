@@ -42,7 +42,10 @@ vec3 point_light_calculations(vec3 normal, vec3 frag_position, vec3 viewer_direc
 vec3 spot_light_calculations(vec3 normal, vec3 frag_position, vec3 viewer_direction);
 float LinearizeDepth(float depth);
 
-#define NR_POINT_LIGHTS 4
+#ifdef HAS_POINT_LIGHTS
+	#define NR_POINT_LIGHTS 4
+	uniform PointLight point_light[NR_POINT_LIGHTS];
+#endif
 
 layout (location = 0) out vec4 FragColor;
 
@@ -57,7 +60,6 @@ uniform float bIsSpotLightEnabled = 0.f;
 uniform float IsALight = 0.f;
 
 uniform DirectionalLight dir_light;
-uniform PointLight point_light[NR_POINT_LIGHTS];
 uniform Material material;
 
 in vec2 texCoord;
@@ -68,6 +70,7 @@ in vec3 frag_position;
 void main()
 {
 	vec3 viewer_direction = normalize(ViewerPosition - frag_position);
+#ifdef IS_A_LIGHT
 	if(IsALight <= 0.f) // Si no es luz, aplicamos la modificacion de color de la luz
 	{
 		vec3 result;
@@ -79,6 +82,7 @@ void main()
 	} else {
 		FragColor = vec4(LightColor, 1.f);
 	}
+#endif
 }
 
 float LinearizeDepth(float depth) 

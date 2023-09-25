@@ -5,14 +5,15 @@
 #include "GLFW/glfw3.h"
 #define GLM_FORCE_RADIANS
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
-#include "glm.hpp"
-#include "gtc/matrix_transform.hpp"
-#include "gtc/type_ptr.hpp"
-#include <glad/glad.h>
+#include <cstring>
 #include <iostream>
 #include <vector>
-#include <cstring>
+#include <glad/glad.h>
+
+#include "glm.hpp"
 #include "Material.h"
+#include "gtc/matrix_transform.hpp"
+#include "gtc/type_ptr.hpp"
 
 struct Vertex {
 	glm::vec3 position = glm::vec3(0);

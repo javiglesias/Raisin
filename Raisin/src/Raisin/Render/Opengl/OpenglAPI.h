@@ -1,14 +1,14 @@
 #pragma once
 #include "Material.h"
 // GLAD goes first
-#include "glad/glad.h"
-#include "GLFW/glfw3.h"
-#include "glm.hpp"
-#include "gtc/matrix_transform.hpp"
-#include "gtc/type_ptr.hpp"
-#include <glad/glad.h>
 #include <iostream>
 #include <vector>
+#include <glad/glad.h>
+#include "glm.hpp"
+#include "glad/glad.h"
+#include "GLFW/glfw3.h"
+#include "gtc/matrix_transform.hpp"
+#include "gtc/type_ptr.hpp"
 
 
 struct Vertex {
@@ -210,7 +210,7 @@ inline void _DrawElements(glm::mat4 _ModelMatrix, glm::mat4 _ViewMatrix, glm::ma
 	if (lightColor_location != -1)
 		glUniform3fv(lightColor_location, 1, value_ptr(_LightColor));
 	if(hasLightColor_location != -1)
-		glUniform1f(hasLightColor_location, (float)_Material->mIsALight);
+		glUniform1f(hasLightColor_location, (float)_Material->IS_A_LIGHT);
 	if (viewMatrix_location != -1)
 		glUniformMatrix4fv(viewMatrix_location, 1, GL_FALSE, value_ptr(_ViewMatrix));
 	if (projectionMatrix_location != -1)

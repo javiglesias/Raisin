@@ -1,7 +1,7 @@
 #ifndef C__SHADER_H
 #define C__SHADER_H
-#include "RenderAPI.h"
 #include <string>
+#include "glm.hpp"
 class Shader
 {
 public:
@@ -21,5 +21,8 @@ public:
 private:
 	const char* name="DEFAULT SHADER";
 	glm::vec3 mColor = glm::vec3(0);
+private:
+	void CompileShader(const char* vertex_path, const char* fragment_path,
+		std::string _vertex, std::string _fragment);
 };
 #endif

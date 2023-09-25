@@ -3,7 +3,7 @@
 #define C__MESH_H
 #include "glm.hpp"
 #include <vector>
-#include "Shader.h"
+#include "Material.h"
 
 struct Vertex;
 struct Texture {
