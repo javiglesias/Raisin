@@ -100,8 +100,21 @@ void RaisinEng::_Init(int _Width, int _Height, const char* _AppName)
 
 	oLight = new Model("resources/models/BasicShapes/LightBulb.obj", oLightMaterial);
 
-	oModelsToDraw[iCurrentModels] = new Model("resources/models/BasicShapes/Sphere.obj", oModelMaterial);
-	++iCurrentModels;
+	oObjsToDraw[iCurrentObjs].AddModel("resources/models/BasicShapes/Sphere.obj", oModelMaterial);
+	oObjsToDraw[iCurrentObjs].AddModel("resources/models/BasicShapes/Sphere.obj", oModelMaterial);
+	oObjsToDraw[iCurrentObjs].AddModel("resources/models/BasicShapes/Sphere.obj", oModelMaterial);
+	oObjsToDraw[iCurrentObjs].AddModel("resources/models/BasicShapes/Sphere.obj", oModelMaterial);
+	oObjsToDraw[iCurrentObjs].AddModel("resources/models/BasicShapes/Sphere.obj", oModelMaterial);
+	oObjsToDraw[iCurrentObjs].AddModel("resources/models/BasicShapes/Sphere.obj", oModelMaterial);
+	++iCurrentObjs;
+	oObjsToDraw[iCurrentObjs].AddModel("resources/models/BasicShapes/Cylinder.obj", oLightMaterial);
+	oObjsToDraw[iCurrentObjs].AddModel("resources/models/BasicShapes/Cylinder.obj", oLightMaterial);
+	oObjsToDraw[iCurrentObjs].AddModel("resources/models/BasicShapes/Cylinder.obj", oLightMaterial);
+	oObjsToDraw[iCurrentObjs].AddModel("resources/models/BasicShapes/Cylinder.obj", oLightMaterial);
+	oObjsToDraw[iCurrentObjs].AddModel("resources/models/BasicShapes/Cylinder.obj", oLightMaterial);
+	oObjsToDraw[iCurrentObjs].AddModel("resources/models/BasicShapes/Cylinder.obj", oLightMaterial);
+	oObjsToDraw[iCurrentObjs].AddModel("resources/models/BasicShapes/Cylinder.obj", oLightMaterial);
+	++iCurrentObjs;
 }
 
 void RaisinEng::Editor_Init()
@@ -141,11 +154,11 @@ void RaisinEng::_Loop()
 			mViewMatrix = glm::lookAt(vCameraPosition, vCameraPosition + vCameraForward,
 				vCameraUp);
 			//mPrimitive._draw(mModelMatrix, mViewMatrix, mProjectionMatrix, vCameraPosition);
-			oLight->Draw(mViewMatrix, mProjectionMatrix, vCameraPosition, vLightPosition, oLight->GetMaterial()->mLightColor);
-			for (size_t i = 0; i < iCurrentModels; i++)
+			for (size_t i = 0; i < iCurrentObjs; i++)
 			{
-				oModelsToDraw[i]->Draw(mViewMatrix, mProjectionMatrix, vCameraPosition, vLightPosition, oLight->GetMaterial()->mLightColor);
+				oObjsToDraw[i].Draw();
 			}
+			oLight->Draw(mViewMatrix, mProjectionMatrix, vCameraPosition, vLightPosition, oLight->GetMaterial()->mLightColor);
 	#ifdef _OPENGL
 			Editor_Loop();
 	#endif
@@ -206,8 +219,8 @@ void RaisinEng::Editor_Loop()
 		if (ifd::FileDialog::Instance().HasResult()) {
 			std::string res = ifd::FileDialog::Instance().GetResult().u8string();
 
-			oModelsToDraw[iCurrentModels] = new Model(res, oModelMaterial);
-			++iCurrentModels;
+			oObjsToDraw[iCurrentObjs].AddModel(res, oModelMaterial);
+			++iCurrentObjs;
 		}
 		ifd::FileDialog::Instance().Close();
 	}
@@ -228,4 +241,13 @@ void RaisinEng::Editor_Close()
 	ax::NodeEditor::DestroyEditor(m_Context);
 	ImGui_ImplGlfw_Shutdown();
 	ImGui::DestroyContext();
+}
+
+void RaisinEng::RenderObj::Draw()
+{
+	// Hacemos solo un UseShader, pero pintamos varios modelos.
+	for (int i = 0; i < 256; i++)
+	{
+		mModels[i].Draw(mViewMatrix, mProjectionMatrix, vCameraPosition, vLightPosition, oLight->GetMaterial()->mLightColor);
+	}
 }

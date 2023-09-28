@@ -183,7 +183,7 @@ inline void _DrawArrays(glm::mat4 _ModelMatrix, glm::mat4 _ViewMatrix, glm::mat4
 	glUniformMatrix4fv(ProjectionMatrix_location, 1, GL_FALSE, value_ptr(projection));
 	glDrawArrays(_primitive, _first, _indicesSize);
 }
-
+inline unsigned int _ShaderUsed = -1;
 inline void _DrawElements(glm::mat4 _ModelMatrix, glm::mat4 _ViewMatrix, glm::mat4 _ProjectionMatrix, glm::vec3 _CameraPosition,
 	glm::vec3 _LightPosition, glm::vec3 _LightColor, Material* _Material, unsigned int _VAO, unsigned int _primitive, int _indicesSize)
 {
@@ -196,8 +196,15 @@ inline void _DrawElements(glm::mat4 _ModelMatrix, glm::mat4 _ViewMatrix, glm::ma
 	unsigned int lightColor_location = glGetUniformLocation(_Material->mShaderId, "LightColor");
 
 	unsigned int hasLightColor_location = glGetUniformLocation(_Material->mShaderId, "IsALight");
-
-	_UseShader(_Material->mShaderId);
+	if(_ShaderUsed != _Material->mShaderId)
+	{
+		printf("Shader Change\n");
+		_ShaderUsed = _Material->mShaderId;
+		_UseShader(_Material->mShaderId);
+	} else
+	{
+		printf("Same shader\n");
+	}
 	glPolygonMode(GL_FRONT, _Material->mMode);
 	glBindVertexArray(_VAO);
 	// Mandamos los uniforms a la GPU

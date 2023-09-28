@@ -9,8 +9,25 @@
 
 namespace RaisinEng
 {
+	struct RenderObj
+	{
+		int	iCurrentModels = 0;
+		Material* mMat;
+		Model mModels[256];
+		void Draw();
+		RenderObj(){}
+		RenderObj(std::string path, Material* _Material)
+		{
+			AddModel(path, _Material);
+		}
+		void AddModel(std::string path, Material* _Material)
+		{
+			mModels[iCurrentModels] = Model(path, _Material);
+			++iCurrentModels;
+		}
+	};
 	inline bool		bMouseCaptured	= false;
-	inline int		iCurrentModels	= 0;
+	inline int		iCurrentObjs	= 0;
 	inline float	fCameraSpeed	= .4f;
 	inline float	fLastXPosition	= 0.f;
 	inline float	fLastYPosition	= 0.f;
@@ -27,7 +44,7 @@ namespace RaisinEng
 	inline glm::mat4 mViewMatrix{ 1.f };
 	inline glm::mat4 mProjectionMatrix{ 1.f };
 	inline Shader* oShader = nullptr, * oLightShader = nullptr;
-	inline Model* oModelsToDraw[256];
+	inline RenderObj oObjsToDraw[256];
 	inline Model* oLight;
 	inline Material* oModelMaterial, * oLightMaterial;
 
