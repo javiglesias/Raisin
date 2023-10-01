@@ -103,6 +103,10 @@
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
+    <PostBuildEvent>
+      <Command>echo D | xcopy /Y "C:\dev\Raisin\Sandbox\resources\Shaders" "C:\dev\Raisin\bin\x64\Debug\resources\Shaders"</Command>
+      <Message>Copy the shaders to bin  resourcers folder</Message>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Vulkan_Debug|x64'">
     <ClCompile>
@@ -117,6 +121,10 @@
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
+    <PostBuildEvent>
+      <Command>echo D | xcopy /Y "C:\dev\Raisin\Sandbox\resources\Shaders" "C:\dev\Raisin\bin\x64\Debug\resources\Shaders"</Command>
+      <Message>Copy the shaders to bin  resourcers folder</Message>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -135,6 +143,10 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
+    <PostBuildEvent>
+      <Command>echo D | xcopy /Y "C:\dev\Raisin\Sandbox\resources\Shaders" "C:\dev\Raisin\bin\x64\Debug\resources\Shaders"</Command>
+      <Message>Copy the shaders to bin  resourcers folder</Message>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Vulkan_Release|x64'">
     <ClCompile>
@@ -153,6 +165,10 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
+    <PostBuildEvent>
+      <Command>echo D | xcopy /Y "C:\dev\Raisin\Sandbox\resources\Shaders" "C:\dev\Raisin\bin\x64\Debug\resources\Shaders"</Command>
+      <Message>Copy the shaders to bin  resourcers folder</Message>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ProjectReference Include="..\Raisin\Raisin.vcxproj">

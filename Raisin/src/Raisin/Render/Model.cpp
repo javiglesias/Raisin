@@ -14,7 +14,7 @@ void Model::Draw(glm::mat4 view, glm::mat4 projection, glm::vec3 camera_position
 	glm::vec3 _lightColor)
 {
 	// Recorremos todas las meshes del modelo y las pintamos.
-	glm::mat4 model = glm::translate(glm::mat4{ 1.f }, mPosition);
+	glm::mat4 model = translate(glm::mat4{ 1.f }, mPosition);
 	for (unsigned int i = 0; i < meshes.size(); i++)
 	{
 		meshes[i].Draw(mMaterial, model, view, projection, camera_position, _lightPosition, _lightColor);

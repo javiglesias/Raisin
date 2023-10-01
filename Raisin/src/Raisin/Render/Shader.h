@@ -6,7 +6,7 @@ class Shader
 {
 public:
 	unsigned int id = -1;
-	Shader(const char* vertex_path, const char* fragment_path, const char* _name="");
+	Shader(char* _vertex_path, char* _fragment_path);
 	Shader(){}
 	~Shader()
 	{
@@ -21,8 +21,9 @@ public:
 private:
 	const char* name="DEFAULT SHADER";
 	glm::vec3 mColor = glm::vec3(0);
+	std::string mVertShaderCode;
+	std::string mFragShaderCode;
 private:
-	void CompileShader(const char* vertex_path, const char* fragment_path,
-		std::string _vertex, std::string _fragment);
+	void CompileShader(char* _path);
 };
 #endif

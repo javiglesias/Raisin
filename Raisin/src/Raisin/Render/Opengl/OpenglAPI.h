@@ -183,6 +183,7 @@ inline void _DrawArrays(glm::mat4 _ModelMatrix, glm::mat4 _ViewMatrix, glm::mat4
 	glUniformMatrix4fv(ProjectionMatrix_location, 1, GL_FALSE, value_ptr(projection));
 	glDrawArrays(_primitive, _first, _indicesSize);
 }
+
 inline unsigned int _ShaderUsed = -1;
 inline void _DrawElements(glm::mat4 _ModelMatrix, glm::mat4 _ViewMatrix, glm::mat4 _ProjectionMatrix, glm::vec3 _CameraPosition,
 	glm::vec3 _LightPosition, glm::vec3 _LightColor, Material* _Material, unsigned int _VAO, unsigned int _primitive, int _indicesSize)
@@ -194,33 +195,29 @@ inline void _DrawElements(glm::mat4 _ModelMatrix, glm::mat4 _ViewMatrix, glm::ma
 	unsigned int cameraPosition_location = glGetUniformLocation(_Material->mShaderId, "ViewerPosition");
 	unsigned int lightPosition_location = glGetUniformLocation(_Material->mShaderId, "LightPosition");
 	unsigned int lightColor_location = glGetUniformLocation(_Material->mShaderId, "LightColor");
-
-	unsigned int hasLightColor_location = glGetUniformLocation(_Material->mShaderId, "IsALight");
+	// Si ya tenemos el shader en uso (optimo) entonces no volvemos a cambiar el estado.
 	if(_ShaderUsed != _Material->mShaderId)
 	{
-		printf("Shader Change\n");
 		_ShaderUsed = _Material->mShaderId;
 		_UseShader(_Material->mShaderId);
-	} else
-	{
-		printf("Same shader\n");
 	}
+
 	glPolygonMode(GL_FRONT, _Material->mMode);
 	glBindVertexArray(_VAO);
+
 	// Mandamos los uniforms a la GPU
 	if (modelMatrix_location != -1)
 		glUniformMatrix4fv(modelMatrix_location, 1, GL_FALSE, value_ptr(_ModelMatrix));
+	if (viewMatrix_location != -1)
+		glUniformMatrix4fv(viewMatrix_location, 1, GL_FALSE, value_ptr(_ViewMatrix));
+	if (projectionMatrix_location != -1)
+		glUniformMatrix4fv(projectionMatrix_location, 1, GL_FALSE, value_ptr(_ProjectionMatrix));
 	if (cameraPosition_location != -1)
 		glUniform3fv(cameraPosition_location, 1, value_ptr(_CameraPosition));
 	if (lightPosition_location != -1)
 		glUniform3fv(lightPosition_location, 1, value_ptr(_LightPosition));
 	if (lightColor_location != -1)
 		glUniform3fv(lightColor_location, 1, value_ptr(_LightColor));
-	if(hasLightColor_location != -1)
-		glUniform1f(hasLightColor_location, (float)_Material->IS_A_LIGHT);
-	if (viewMatrix_location != -1)
-		glUniformMatrix4fv(viewMatrix_location, 1, GL_FALSE, value_ptr(_ViewMatrix));
-	if (projectionMatrix_location != -1)
-		glUniformMatrix4fv(projectionMatrix_location, 1, GL_FALSE, value_ptr(_ProjectionMatrix));
+
 	glDrawElements(_primitive, _indicesSize, GL_UNSIGNED_INT, 0);
 }

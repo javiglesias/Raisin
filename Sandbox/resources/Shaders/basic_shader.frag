@@ -1,4 +1,5 @@
 #version 450 core
+//DEFINES
 
 struct DirectionalLight 
 {
@@ -70,18 +71,16 @@ in vec3 frag_position;
 void main()
 {
 	vec3 viewer_direction = normalize(ViewerPosition - frag_position);
-#ifdef IS_A_LIGHT
-	if(IsALight <= 0.f) // Si no es luz, aplicamos la modificacion de color de la luz
-	{
+#ifdef IS_LIGHT_AFFECTED
 		vec3 result;
 		result = (bIsDirectionLightEnabled * directional_light_calculations(normal, frag_position, viewer_direction));
 		float depth = LinearizeDepth(frag_position.z);
 		result += (bIsPointLightEnabled * point_light_calculations(normal, frag_position, viewer_direction));
 		result += LightColor;
 		FragColor = vec4(result, 1.f);
-	} else {
+#else
 		FragColor = vec4(LightColor, 1.f);
-	}
+	
 #endif
 }
 

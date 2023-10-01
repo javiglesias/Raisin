@@ -95,25 +95,12 @@ void RaisinEng::_Init(int _Width, int _Height, const char* _AppName)
 	_add_callback_input(eINPUTKEY(GLFW_KEY_D),_camera_move_callback);
 
 	//Models && "Materials"
-	oModelMaterial = new Material("basic_shader", "basic_shader", false);
-	oLightMaterial = new Material("basic_shader", "basic_shape_shader", true, glm::vec3(0.f), Material::WIREFRAME);
+	oModelMaterial = new Material("basic_shader", "basic_shader", true);
+	oLightMaterial = new Material("basic_shader", "basic_shader", false, glm::vec3(0.f));
 
 	oLight = new Model("resources/models/BasicShapes/LightBulb.obj", oLightMaterial);
 
 	oObjsToDraw[iCurrentObjs].AddModel("resources/models/BasicShapes/Sphere.obj", oModelMaterial);
-	oObjsToDraw[iCurrentObjs].AddModel("resources/models/BasicShapes/Sphere.obj", oModelMaterial);
-	oObjsToDraw[iCurrentObjs].AddModel("resources/models/BasicShapes/Sphere.obj", oModelMaterial);
-	oObjsToDraw[iCurrentObjs].AddModel("resources/models/BasicShapes/Sphere.obj", oModelMaterial);
-	oObjsToDraw[iCurrentObjs].AddModel("resources/models/BasicShapes/Sphere.obj", oModelMaterial);
-	oObjsToDraw[iCurrentObjs].AddModel("resources/models/BasicShapes/Sphere.obj", oModelMaterial);
-	++iCurrentObjs;
-	oObjsToDraw[iCurrentObjs].AddModel("resources/models/BasicShapes/Cylinder.obj", oLightMaterial);
-	oObjsToDraw[iCurrentObjs].AddModel("resources/models/BasicShapes/Cylinder.obj", oLightMaterial);
-	oObjsToDraw[iCurrentObjs].AddModel("resources/models/BasicShapes/Cylinder.obj", oLightMaterial);
-	oObjsToDraw[iCurrentObjs].AddModel("resources/models/BasicShapes/Cylinder.obj", oLightMaterial);
-	oObjsToDraw[iCurrentObjs].AddModel("resources/models/BasicShapes/Cylinder.obj", oLightMaterial);
-	oObjsToDraw[iCurrentObjs].AddModel("resources/models/BasicShapes/Cylinder.obj", oLightMaterial);
-	oObjsToDraw[iCurrentObjs].AddModel("resources/models/BasicShapes/Cylinder.obj", oLightMaterial);
 	++iCurrentObjs;
 }
 
@@ -250,4 +237,4 @@ void RaisinEng::RenderObj::Draw()
 	{
 		mModels[i].Draw(mViewMatrix, mProjectionMatrix, vCameraPosition, vLightPosition, oLight->GetMaterial()->mLightColor);
 	}
-}
+}	 

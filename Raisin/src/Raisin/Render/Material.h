@@ -11,21 +11,31 @@ public:
 		WIREFRAME	= 0x1B01,
 		FILL		= 0x1B02
 	};
-	bool IS_A_LIGHT = false;
+	bool IS_LIGHT_AFFECTED = false, HAS_POINT_LIGHTS = false;
+	char mVertxName[128], mFragName[128];
+	char mUberVertxName[128], mUberFragName[128];
 	unsigned int mShaderId = -1;
 	glm::vec3 mLightColor;
 	PolygonMode mMode;
 	Shader* mShader;
-	Material(const char* _vert, const char* _frag, bool _IsALight, glm::vec3 _LightColor = { 1.f, 1.f, 1.f }, PolygonMode _Mode = FILL)
+	Material(const char* _vert, const char* _frag, bool _IsLightAffected, glm::vec3 _LightColor = { 1.f, 1.f, 1.f }, PolygonMode _Mode = FILL)
 	{
-		char _fragName[256];
-		char _vertName[256];
-		sprintf(_vertName, "resources/Shaders/%s.vert", _vert);
-		sprintf(_fragName, "resources/Shaders/%s.frag", _frag);
-		mShader		= new Shader("resources/Shaders/basic_shader.vert", "resources/Shaders/basic_shader.frag");
-		mShaderId	= mShader->id;
-		IS_A_LIGHT	= _IsALight;
+		IS_LIGHT_AFFECTED = _IsLightAffected;
 		mLightColor = _LightColor;
 		mMode		= _Mode;
+		sprintf(mVertxName, "resources/Shaders/%s.vert", _vert);
+		sprintf(mFragName, "resources/Shaders/%s.frag", _frag);
+		sprintf(mUberFragName, "%s", mFragName);
+		sprintf(mUberVertxName, "%s", mVertxName);
+		GenerateUberName();
+		mShader		= new Shader(mUberVertxName, mUberFragName);
+		mShaderId	= mShader->id;
+	}
+	void GenerateUberName()
+	{
+		if(IS_LIGHT_AFFECTED)
+			sprintf(mUberFragName, "%s$IS_LIGHT_AFFECTED", mFragName);
+		if(HAS_POINT_LIGHTS)
+			sprintf(mUberFragName, "%s$HAS_POINT_LIGHTS", mFragName);
 	}
 };
