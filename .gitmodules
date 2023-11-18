@@ -1,0 +1,3 @@
+[submodule "Raisin/src/ThirdParty/assimp"]
+	path = Raisin/src/ThirdParty/assimp
+	url = https://github.com/assimp/assimp

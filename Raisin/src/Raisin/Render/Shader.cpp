@@ -7,11 +7,16 @@
 
 Shader::Shader(char* _vertex_path, char* _fragment_path)
 {
+	Init(_vertex_path, _fragment_path);
+}
+
+void Shader::Init(char* _vertex_path, char* _fragment_path)
+{
 	std::ifstream v_shader_file;
 	std::ifstream f_shader_file;
 	// Hay que compilar el Uber SHader antes de tenerlo disponible.
 	CompileShader(_fragment_path);
-	if(mVertShaderCode == "")
+	if (mVertShaderCode == "")
 	{
 		v_shader_file.open(_vertex_path);
 		if (v_shader_file.is_open())
@@ -23,7 +28,7 @@ Shader::Shader(char* _vertex_path, char* _fragment_path)
 		}
 	}
 
-	if(mFragShaderCode == "")
+	if (mFragShaderCode == "")
 	{
 		f_shader_file.open(_fragment_path);
 		std::stringstream f_shader_stream;
@@ -62,6 +67,7 @@ void Shader::setVec3(const std::string& name, glm::vec3 value) const
 void Shader::CompileShader(char* _path)
 {
 	// TODO compilacion de uber shader
+	// #version 450 core
 	int def = 0, count = 0, combinatory = 0;
 	char filepath[128];
 	strcpy(filepath, _path);

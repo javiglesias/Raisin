@@ -132,20 +132,17 @@ namespace RaisinEng
 	};
 	struct sInputRegistered
 	{
-		eINPUTKEY key;
-		void(*callback)(int _key);
+		void(*callback)();
 		sInputRegistered()
 		{
-			key = UNKNOWN;
 			callback = nullptr;
 		}
-		sInputRegistered(eINPUTKEY _key, void(*_callback)(int _key))
+		sInputRegistered(eINPUTKEY _key, void(*_callback)())
 		{
-			key = _key;
 			callback = _callback;
 		}
 	};
 	inline sInputRegistered m_inputs[512];
 	void _process_input(int _key);
-	void _add_callback_input(eINPUTKEY _key, void(*_callback)(int _key));
+	void _add_callback_input(eINPUTKEY _key, void(*_callback)());
 }

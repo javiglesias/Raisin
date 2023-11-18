@@ -4,13 +4,11 @@ namespace RaisinEng
 {
 	void _process_input(int _key)
 	{
-		if(m_inputs[_key].key != UNKNOWN)
-		{
-			m_inputs[_key].callback(_key);
-		}
+		if(m_inputs[_key].callback)
+			m_inputs[_key].callback();
 	}
 
-	void _add_callback_input(eINPUTKEY _key, void(*_callback)(int _key))
+	void _add_callback_input(eINPUTKEY _key, void(*_callback)())
 	{
 		m_inputs[_key] = sInputRegistered{_key, _callback};
 	}

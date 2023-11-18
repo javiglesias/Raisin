@@ -1,8 +1,8 @@
 #pragma once
 #include "Material.h"
-// GLAD goes first
 #include <iostream>
 #include <vector>
+// GLAD goes first
 #include <glad/glad.h>
 #include "glm.hpp"
 #include "glad/glad.h"
@@ -46,6 +46,8 @@ inline GLFWwindow& _CreateWindow(const char* _name, int _Width, int _Height)
 	}
 	glViewport(0, 0, _Width, _Height);
 	glEnable(GL_DEPTH_TEST);
+	glEnable(GL_POLYGON_OFFSET_LINE);
+	glPolygonOffset(-1.f, -1.f);
 	return *m_window;
 }
 
@@ -62,7 +64,7 @@ inline unsigned int _CreateShader(const char* _v_shader_code, const char* _f_sha
 	if (!success)
 	{
 		glGetShaderInfoLog(vertex, 512, nullptr, log_info);
-		std::cerr << log_info;
+		std::cerr << "VERT_SHADER_ERROR: " << log_info;
 	}
 	fragment = glCreateShader(GL_FRAGMENT_SHADER);
 	glShaderSource(fragment, 1, &_f_shader_code, nullptr);
@@ -71,7 +73,7 @@ inline unsigned int _CreateShader(const char* _v_shader_code, const char* _f_sha
 	if (!success)
 	{
 		glGetShaderInfoLog(fragment, 512, nullptr, log_info);
-		std::cerr << log_info;
+		std::cerr << "FRAG_SHADER_ERROR: " <<log_info;
 	}
 	id = glCreateProgram();
 	glAttachShader(id, vertex);
@@ -156,6 +158,19 @@ inline unsigned int _Create2DSphere(float _Radio, float _CenterX, float _CenterY
 	return VAO;
 }
 
+inline unsigned int _CreateVAOData(float* _Vertices, int _VertSize)
+{
+	unsigned int VAO, VBO;
+	glGenVertexArrays(1, &VAO);
+	glGenBuffers(1, &VBO);
+	glBindVertexArray(VAO);
+	glBindBuffer(GL_ARRAY_BUFFER, VBO);
+	glBufferData(GL_ARRAY_BUFFER, _VertSize, _Vertices, GL_STATIC_DRAW);
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+	return VAO;
+}
+
 inline void _UseShader(unsigned int _shaderId)
 {
 	glUseProgram(_shaderId);
@@ -202,7 +217,7 @@ inline void _DrawElements(glm::mat4 _ModelMatrix, glm::mat4 _ViewMatrix, glm::ma
 		_UseShader(_Material->mShaderId);
 	}
 
-	glPolygonMode(GL_FRONT, _Material->mMode);
+	//glPolygonMode(GL_FRONT_AND_BACK, _Material->mMode);
 	glBindVertexArray(_VAO);
 
 	// Mandamos los uniforms a la GPU

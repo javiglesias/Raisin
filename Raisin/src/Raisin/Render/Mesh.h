@@ -6,12 +6,6 @@
 #include "Material.h"
 
 struct Vertex;
-struct Texture {
-	int id = -1;
-	std::string type = "";
-	std::string path = "";
-	int width = -1, heigth = -1, nr_channels = -1;
-};
 
 class Mesh 
 {

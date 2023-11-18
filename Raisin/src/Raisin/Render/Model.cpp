@@ -14,6 +14,12 @@ void Model::Draw(glm::mat4 view, glm::mat4 projection, glm::vec3 camera_position
 	glm::vec3 _lightColor)
 {
 	// Recorremos todas las meshes del modelo y las pintamos.
+	if (mScene != nullptr)
+	{
+		mScene->Draw(view, projection, camera_position, _lightPosition, _lightColor);
+		return;
+	}
+
 	glm::mat4 model = translate(glm::mat4{ 1.f }, mPosition);
 	for (unsigned int i = 0; i < meshes.size(); i++)
 	{
@@ -21,18 +27,29 @@ void Model::Draw(glm::mat4 view, glm::mat4 projection, glm::vec3 camera_position
 	}
 }
 
-bool Model::loadModel(std::string path)
+bool Model::loadModel(std::string _path)
 {
-	Assimp::Importer importer;
-	const aiScene* scene = importer.ReadFile(path, aiProcess_Triangulate | aiProcess_FlipUVs);
-	if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode)
+	const char* _pathChar = _path.c_str();
+	const int _pathSize = _path.size();
+	/*if (_pathChar[_pathSize - 4] == 'g' &&
+		_pathChar[_pathSize - 3] == 'l' &&
+		_pathChar[_pathSize - 2] == 't' &&
+		_pathChar[_pathSize - 1] == 'f')
 	{
-		std::cerr << "Error loading the model " << importer.GetErrorString() << '\n';
-		return false;
+		mScene = new cglTFFile(_path);
+	} else*/
+	{
+		Assimp::Importer importer;
+		const aiScene* scene = importer.ReadFile(_path, aiProcess_Triangulate | aiProcess_FlipUVs);
+		if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode)
+		{
+			std::cerr << "Error loading the model " << importer.GetErrorString() << '\n';
+			return false;
+		}
+		directory = _path.substr(0, _path.find_last_of('/'));
+		directory = directory + '/';
+		processNode(scene->mRootNode, scene);
 	}
-	directory = path.substr(0, path.find_last_of('/'));
-	directory = directory + '/';
-	processNode(scene->mRootNode, scene);
 	return true;
 }
 
@@ -147,7 +164,6 @@ Texture Model::LoadCustomTexture(std::string _CustomTexture)
 	tex.width = width;
 	tex.nr_channels = nr_channels;
 	return tex;
-	
 }
 
 unsigned int Model::TextureFromFile(std::string str, std::string directory)

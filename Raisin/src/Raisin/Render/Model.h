@@ -3,18 +3,22 @@
 
 #include <vector>
 #include <string>
-#include <assimp/scene.h>
+#include <assimp/scene.h> // assimp
+#include <assimp/mesh.h> // assimp
+#include <assimp/material.h> //assimp
 
 #include "Mesh.h"
 #include "Material.h"
+#include "Scene.h"
 
 class Model
 {
 public:
 	Model(){}
-	Model(std::string path, Material* _Material)
+	Model(std::string path, Material* _Material, std::vector<Mesh>& oMeshes)
 	{
 		mMaterial = _Material;
+		meshes = oMeshes;
 		loadModel(path);
 	}
 	Material* GetMaterial() const { return mMaterial; }
@@ -25,6 +29,7 @@ private:
 	std::vector<Mesh> meshes;
 	std::string directory;
 	Material* mMaterial;
+	cglTFFile* mScene = nullptr;
 public:
 	glm::vec3 mPosition {0.f};
 	glm::vec3 mColor{ 0.f };

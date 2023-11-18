@@ -1,7 +1,8 @@
 #include "RaiEng.h"
 
 #include "../Input/Input.h"
-#include "Primitives.h"
+#include "../Sound/Sound.h"
+#include "Primitives/Primitives.h"
 
 // Dedicated GPU for laptops with 2 https://stackoverflow.com/questions/16823372/forcing-machine-to-use-dedicated-graphics-card
 extern "C" {
@@ -11,29 +12,7 @@ extern "C"
 {
 	__declspec(dllexport) int AmdPowerXpressRequestHighPerformance = 1;
 }
-//Callbacks
-void _camera_move_callback(int _key)
-{
-	switch (_key)
-	{
-		case GLFW_KEY_W:
-			RaisinEng::vCameraPosition += RaisinEng::fCameraSpeed * RaisinEng::vCameraForward;
-			break;
-		case GLFW_KEY_D:
-			RaisinEng::vCameraPosition -= glm::normalize(glm::cross(
-				RaisinEng::vCameraUp, RaisinEng::vCameraForward)) * RaisinEng::fCameraSpeed;
-			break;
-		case GLFW_KEY_S:
-			RaisinEng::vCameraPosition -= RaisinEng::fCameraSpeed * RaisinEng::vCameraForward;
-			break;
-		case GLFW_KEY_A:
-			RaisinEng::vCameraPosition += glm::normalize(glm::cross(
-				RaisinEng::vCameraUp, RaisinEng::vCameraForward)) * RaisinEng::fCameraSpeed;
-			break;
-		default:
-			break;
-	}
-}
+
 void _mouse_press_callback(GLFWwindow* _window, int x, int y, int button)
 {
 	if (button == 0 && !RaisinEng::bMouseCaptured)
@@ -89,19 +68,39 @@ void RaisinEng::_Init(int _Width, int _Height, const char* _AppName)
 #ifdef _OPENGL
 	Editor_Init();
 #endif
-	_add_callback_input( eINPUTKEY(GLFW_KEY_W),_camera_move_callback);
-	_add_callback_input(eINPUTKEY(GLFW_KEY_A), _camera_move_callback);
-	_add_callback_input(eINPUTKEY(GLFW_KEY_S), _camera_move_callback);
-	_add_callback_input(eINPUTKEY(GLFW_KEY_D),_camera_move_callback);
+	_add_callback_input( eINPUTKEY(GLFW_KEY_W), []()
+	{
+			RaisinEng::vCameraPosition += RaisinEng::fCameraSpeed * RaisinEng::vCameraForward;
+	});
+	_add_callback_input(eINPUTKEY(GLFW_KEY_A), []()
+	{
+			RaisinEng::vCameraPosition += glm::normalize(glm::cross(
+				RaisinEng::vCameraUp, RaisinEng::vCameraForward)) * RaisinEng::fCameraSpeed;
+	});
+	_add_callback_input(eINPUTKEY(GLFW_KEY_S), []()
+	{
+			RaisinEng::vCameraPosition -= RaisinEng::fCameraSpeed * RaisinEng::vCameraForward;
+	});
+	_add_callback_input(eINPUTKEY(GLFW_KEY_D),[]()
+	{
+			RaisinEng::vCameraPosition -= glm::normalize(glm::cross(
+				RaisinEng::vCameraUp, RaisinEng::vCameraForward)) * RaisinEng::fCameraSpeed;
+	});
+	_add_callback_input(eINPUTKEY(GLFW_KEY_R),[]()
+	{
+			RaisinEng::vCameraPosition = glm::vec3{0.f};
+	});
 
 	//Models && "Materials"
-	oModelMaterial = new Material("basic_shader", "basic_shader", true);
+	oModelMaterial = new Material("basic_shader", "basic_shader", false, glm::vec3(1.f));
 	oLightMaterial = new Material("basic_shader", "basic_shader", false, glm::vec3(0.f));
 
-	oLight = new Model("resources/models/BasicShapes/LightBulb.obj", oLightMaterial);
+	oLight = new Model("resources/models/BasicShapes/LightBulb.obj", oLightMaterial, oMeshes);
 
-	oObjsToDraw[iCurrentObjs].AddModel("resources/models/BasicShapes/Sphere.obj", oModelMaterial);
-	++iCurrentObjs;
+	/*oObjsToDraw[iCurrentObjs].AddModel("resources/models/backpack/backpack.obj", oModelMaterial);	
+	++iCurrentObjs;*/
+	InitSoundSystem();
+	mCubemap.LoadTexData();
 }
 
 void RaisinEng::Editor_Init()
@@ -117,7 +116,7 @@ void RaisinEng::Editor_Init()
 	style.WindowRounding = 1.f;
 	// ESTABLECEMOS LA PATAFORMA Y RENDER
 	ImGui_ImplGlfw_InitForOpenGL(m_window, true);
-	ImGui_ImplOpenGL3_Init("#version 430");
+	ImGui_ImplOpenGL3_Init("#version 460");
 }
 
 void RaisinEng::_Loop()
@@ -134,13 +133,16 @@ void RaisinEng::_Loop()
 			currentTimeFrame = 0.f;
 			_process_input(m_window);
 			_ClearColorBuffer();
-
+			// Process Systems (Ticks)
+			SoundSysTick(deltaTime);
 			// Renderables
 			mProjectionMatrix = glm::perspective(glm::radians(40.f),
 				(800.f / 600.f), 0.3f, 100.f);
 			mViewMatrix = glm::lookAt(vCameraPosition, vCameraPosition + vCameraForward,
 				vCameraUp);
 			//mPrimitive._draw(mModelMatrix, mViewMatrix, mProjectionMatrix, vCameraPosition);
+			mCubemap.Draw(mModelMatrix, mViewMatrix, mProjectionMatrix, vCameraPosition);
+		// TODO: Ordenar los modelos por Material > Shaders
 			for (size_t i = 0; i < iCurrentObjs; i++)
 			{
 				oObjsToDraw[i].Draw();
@@ -152,7 +154,6 @@ void RaisinEng::_Loop()
 			glfwSwapBuffers(m_window);
 			glfwPollEvents();
 		}
-		// TODO: Ordenar los modelos por Material > Shaders
 	}
 }
 
@@ -185,7 +186,9 @@ void RaisinEng::Editor_Loop()
 	ImGui::Begin("World");
 	{
 		if (ImGui::Button("Open a model"))
-			ifd::FileDialog::Instance().Open("ModelOpenDialog", "Open a model", "obj Model (*.obj)");
+			ifd::FileDialog::Instance().Open("ModelOpenDialog", "Open a model", "*.gltf, *.glb, *.obj");
+		if (ImGui::Button("Load cubemap"))
+			ifd::FileDialog::Instance().Open("OpenCubemapDialog", "Open a cumebap texture", "*.png");
 		float tempLightPos[3] = {vLightPosition.x, vLightPosition.y, vLightPosition.z};
 		ImGui::DragFloat3("Light Position", tempLightPos);
 		vLightPosition.x = tempLightPos[0];
@@ -201,6 +204,36 @@ void RaisinEng::Editor_Loop()
 		oLight->GetMaterial()->mLightColor.z = tempLightColor[2];
 		ImGui::End();
 	}
+	ImGui::Begin("Sound Visualizer");
+	{
+		ImGui::SliderFloat("Volume SFX", GetSetVolumeSFX(), 0.f, 1.f, "%.2f");
+		ImGui::NewLine();
+		if (ImGui::Button("Play SFX"))
+			PlaySFX("resources/Sound/NULL.ogg");
+		ImGui::NewLine();
+		ImGui::SliderFloat("Volume MUSIC", GetSetVolumeMUSIC(), 0.f, 1.f, "%.2f");
+		ImGui::NewLine();
+		ImGui::PlotLines("Sound Wave", GetSoundWave(), 12);
+		ImGui::NewLine();
+		ImGui::End();
+	}
+	ImGui::Begin("DEBUG PANEL");
+	{
+		ImGui::Text("%s", _DebugPanel.c_str());
+		ImGui::End();
+	}
+
+	ImGui::Begin("INFO PANEL");
+	{
+		ImGui::Text("%s", _InfoPanel.c_str());
+		ImGui::End();
+	}
+
+	ImGui::Begin("ERROR PANEL");
+	{
+		ImGui::Text("%s", _ErrorPanel.c_str());
+		ImGui::End();
+	}
 
 	if (ifd::FileDialog::Instance().IsDone("ModelOpenDialog")) {
 		if (ifd::FileDialog::Instance().HasResult()) {
@@ -208,6 +241,14 @@ void RaisinEng::Editor_Loop()
 
 			oObjsToDraw[iCurrentObjs].AddModel(res, oModelMaterial);
 			++iCurrentObjs;
+		}
+		ifd::FileDialog::Instance().Close();
+	}
+	if (ifd::FileDialog::Instance().IsDone("OpenCubemapDialog")) {
+		if (ifd::FileDialog::Instance().HasResult()) {
+			std::string res = ifd::FileDialog::Instance().GetResult().u8string();
+			_InfoPanel += res.c_str();
+			_InfoPanel += "\n";
 		}
 		ifd::FileDialog::Instance().Close();
 	}
@@ -221,6 +262,7 @@ void RaisinEng::_Destroy()
 	Editor_Close();
 #endif
 	glfwTerminate();
+	DestroySoundSystem();
 }
 
 void RaisinEng::Editor_Close()

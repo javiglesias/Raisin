@@ -1,4 +1,5 @@
 #pragma once
+#include "../DebugUtils/Debug.h"
 #ifdef _OPENGL
 #include "Opengl/OpenglAPI.h"
 #endif

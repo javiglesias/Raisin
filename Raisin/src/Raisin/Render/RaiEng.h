@@ -6,9 +6,12 @@
 #include "../imgui/imgui_impl_opengl3.h"
 #include "../imgui/ImFileDialog.h"
 #include "../imgui/imgui_node_editor.h"
+#include "Primitives/Cubemap.h" 
 
 namespace RaisinEng
 {
+	inline std::vector<Mesh> oMeshes;
+	inline sCubemap mCubemap;
 	struct RenderObj
 	{
 		int	iCurrentModels = 0;
@@ -22,7 +25,7 @@ namespace RaisinEng
 		}
 		void AddModel(std::string path, Material* _Material)
 		{
-			mModels[iCurrentModels] = Model(path, _Material);
+			mModels[iCurrentModels] = Model(path, _Material, oMeshes);
 			++iCurrentModels;
 		}
 	};

@@ -97,17 +97,17 @@
       <LanguageStandard>stdcpp17</LanguageStandard>
       <LanguageStandard_C>stdc17</LanguageStandard_C>
       <AssemblerOutput>AssemblyCode</AssemblerOutput>
-      <AdditionalIncludeDirectories>C:\dev\Raisin\Raisin\src\ThirdParty\glfw-master\include;C:\VulkanSDK\1.3.231.1\Include;$(ProjectDir)src\ThirdParty\assimp-3.1.1\include;$(ProjectDir)src\ThirdParty\glm-0.9.9.8;$(ProjectDir)src\ThirdParty\glad-master\include;$(ProjectDir)src\ThirdParty\glfw-master\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\dev\Raisin\Raisin\src\ThirdParty\glfw-master\include;C:\VulkanSDK\1.3.231.1\Include;$(ProjectDir)src\ThirdParty\assimp\include;$(ProjectDir)src\ThirdParty\glm-0.9.9.8;$(ProjectDir)src\ThirdParty\glad-master\include;$(ProjectDir)src\ThirdParty\FMOD SoundSystem\FMOD Studio API Windows\api\core\inc;$(ProjectDir)src\ThirdParty\glfw-master\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <ShowIncludes>false</ShowIncludes>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>C:\VulkanSDK\1.3.231.1\Lib;$(SolutionDir)Raisin\src\ThirdParty\glad-master\Debug;$(SolutionDir)Raisin\src\ThirdParty\assimp-3.1.1\lib64;$(SolutionDir)bin\;$(SolutionDir)Raisin\src\ThirdParty\glfw-master\Debug\Lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(SolutionDir)Raisin\src\ThirdParty\FMOD SoundSystem\FMOD Studio API Windows\api\core\lib\x64;C:\VulkanSDK\1.3.231.1\Lib;$(SolutionDir)Raisin\src\ThirdParty\glad-master\Debug;$(SolutionDir)Raisin\src\ThirdParty\assimp\lib\$(Configuration);$(SolutionDir)bin\;$(SolutionDir)Raisin\src\ThirdParty\glfw-master\Debug\Lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <GenerateMapFile>true</GenerateMapFile>
       <AssemblyDebug>true</AssemblyDebug>
-      <AdditionalDependencies>glad.lib;glfw3.lib;assimp.lib;vulkan-1.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>glad.lib;glfw3.lib;assimp-vc143-mtd.lib;vulkan-1.lib;fmod_vc.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Vulkan_Debug|x64'">
@@ -119,17 +119,17 @@
       <LanguageStandard>stdcpp17</LanguageStandard>
       <LanguageStandard_C>stdc17</LanguageStandard_C>
       <AssemblerOutput>AssemblyCode</AssemblerOutput>
-      <AdditionalIncludeDirectories>C:\dev\Raisin\Raisin\src\ThirdParty\glfw-master\include;C:\VulkanSDK\1.3.231.1\Include;$(ProjectDir)src\ThirdParty\assimp-3.1.1\include;$(ProjectDir)src\ThirdParty\glm-0.9.9.8;$(ProjectDir)src\ThirdParty\glad-master\include;$(ProjectDir)src\ThirdParty\glfw-master\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\dev\Raisin\Raisin\src\ThirdParty\glfw-master\include;C:\VulkanSDK\1.3.231.1\Include;$(ProjectDir)src\ThirdParty\assimp\include;$(ProjectDir)src\ThirdParty\glm-0.9.9.8;$(ProjectDir)src\ThirdParty\glad-master\include;$(ProjectDir)src\ThirdPartyFMOD SoundSystem\FMOD Studio API Windows\api\core\inc;$(ProjectDir)src\ThirdParty\glfw-master\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <ShowIncludes>false</ShowIncludes>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>C:\VulkanSDK\1.3.231.1\Lib;$(SolutionDir)Raisin\src\ThirdParty\glad-master\Debug;$(SolutionDir)Raisin\src\ThirdParty\assimp-3.1.1\lib64;$(SolutionDir)bin\;$(SolutionDir)Raisin\src\ThirdParty\glfw-master\Debug\Lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(SolutionDir)Raisin\src\ThirdParty\FMOD SoundSystem\FMOD Studio API Windows\api\core\lib\x64;C:\VulkanSDK\1.3.231.1\Lib;$(SolutionDir)Raisin\src\ThirdParty\glad-master\Debug;$(SolutionDir)Raisin\src\ThirdParty\assimp\lib;$(SolutionDir)bin\;$(SolutionDir)Raisin\src\ThirdParty\glfw-master\Debug\Lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <GenerateMapFile>true</GenerateMapFile>
       <AssemblyDebug>true</AssemblyDebug>
-      <AdditionalDependencies>glad.lib;glfw3.lib;assimp.lib;vulkan-1.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>glad.lib;glfw3.lib;assimp.lib;vulkan-1.lib;fmod_vc.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -140,9 +140,9 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>__RAISIN_DLL_BUILD;_CRT_SECURE_NO_WARNINGS;_OPENGL;_WINDOWS;NDEBUG;_CONSOLE;_GAME;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>Default</ConformanceMode>
-      <LanguageStandard>Default</LanguageStandard>
-      <LanguageStandard_C>stdc11</LanguageStandard_C>
-      <AdditionalIncludeDirectories>C:\dev\Raisin\Raisin\src\ThirdParty\glfw-master\include;C:\VulkanSDK\1.3.231.1\Include;$(ProjectDir)src\ThirdParty\assimp-3.1.1\include;$(ProjectDir)src\ThirdParty\glm-0.9.9.8;$(ProjectDir)src\ThirdParty\glad-master\include;C:\VulkanSDK\1.3.231.1\Include;$(ProjectDir)src\ThirdParty\glfw-master\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+      <LanguageStandard_C>stdc17</LanguageStandard_C>
+      <AdditionalIncludeDirectories>C:\dev\Raisin\Raisin\src\ThirdParty\glfw-master\include;C:\VulkanSDK\1.3.231.1\Include;$(ProjectDir)src\ThirdParty\assimp\include\assimp;$(ProjectDir)src\ThirdParty\glm-0.9.9.8;$(ProjectDir)src\ThirdParty\glad-master\include;$(ProjectDir)src\ThirdPartyFMOD SoundSystem\FMOD Studio API Windows\api\core\inc;$(ProjectDir)src\ThirdParty\glfw-master\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <ShowIncludes>false</ShowIncludes>
       <AssemblerOutput>All</AssemblerOutput>
     </ClCompile>
@@ -151,10 +151,10 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>C:\VulkanSDK\1.3.231.1\Lib;$(SolutionDir)Raisin\src\ThirdParty\glad-master\Debug;$(SolutionDir)Raisin\src\ThirdParty\assimp-3.1.1\lib64;$(SolutionDir)bin\;$(SolutionDir)Raisin\src\ThirdParty\glfw-master\Release\Lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(SolutionDir)Raisin\src\ThirdParty\FMOD SoundSystem\FMOD Studio API Windows\api\core\lib\x64;C:\VulkanSDK\1.3.231.1\Lib;$(SolutionDir)Raisin\src\ThirdParty\glad-master\Debug;$(SolutionDir)Raisin\src\ThirdParty\assimp\lib\$(Configuration);$(SolutionDir)bin\;$(SolutionDir)Raisin\src\ThirdParty\glfw-master\Release\Lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <GenerateMapFile>true</GenerateMapFile>
       <AssemblyDebug>true</AssemblyDebug>
-      <AdditionalDependencies>glad.lib;glfw3.lib;assimp.lib;vulkan-1.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>glad.lib;glfw3.lib;assimp-vc143-mtd.lib;vulkan-1.lib;fmod_vc.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
       <MapExports>true</MapExports>
     </Link>
   </ItemDefinitionGroup>
@@ -166,9 +166,9 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>__RAISIN_DLL_BUILD;_CRT_SECURE_NO_WARNINGS;_VULKAN;_WINDOWS;NDEBUG;_CONSOLE;_GAME;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>Default</ConformanceMode>
-      <LanguageStandard>Default</LanguageStandard>
-      <LanguageStandard_C>stdc11</LanguageStandard_C>
-      <AdditionalIncludeDirectories>C:\dev\Raisin\Raisin\src\ThirdParty\glfw-master\include;C:\VulkanSDK\1.3.231.1\Include;$(ProjectDir)src\ThirdParty\assimp-3.1.1\include;$(ProjectDir)src\ThirdParty\glm-0.9.9.8;$(ProjectDir)src\ThirdParty\glad-master\include;C:\VulkanSDK\1.3.231.1\Include;$(ProjectDir)src\ThirdParty\glfw-master\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+      <LanguageStandard_C>stdc17</LanguageStandard_C>
+      <AdditionalIncludeDirectories>C:\dev\Raisin\Raisin\src\ThirdParty\glfw-master\include;C:\VulkanSDK\1.3.231.1\Include;$(ProjectDir)src\ThirdParty\assimp\include;$(ProjectDir)src\ThirdParty\glm-0.9.9.8;$(ProjectDir)src\ThirdParty\glad-master\include;$(ProjectDir)src\ThirdPartyFMOD SoundSystem\FMOD Studio API Windows\api\core\inc;C:\VulkanSDK\1.3.231.1\Include;$(ProjectDir)src\ThirdParty\glfw-master\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <ShowIncludes>false</ShowIncludes>
       <AssemblerOutput>All</AssemblerOutput>
     </ClCompile>
@@ -177,10 +177,10 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>C:\VulkanSDK\1.3.231.1\Lib;$(SolutionDir)Raisin\src\ThirdParty\glad-master\Debug;$(SolutionDir)Raisin\src\ThirdParty\assimp-3.1.1\lib64;$(SolutionDir)bin\;$(SolutionDir)Raisin\src\ThirdParty\glfw-master\Release\Lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(SolutionDir)Raisin\src\ThirdParty\FMOD SoundSystem\FMOD Studio API Windows\api\core\lib\x64;C:\VulkanSDK\1.3.231.1\Lib;$(SolutionDir)Raisin\src\ThirdParty\glad-master\Debug;$(SolutionDir)Raisin\src\ThirdParty\assimp\lib;$(SolutionDir)bin\;$(SolutionDir)Raisin\src\ThirdParty\glfw-master\Release\Lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <GenerateMapFile>true</GenerateMapFile>
       <AssemblyDebug>true</AssemblyDebug>
-      <AdditionalDependencies>glad.lib;glfw3.lib;assimp.lib;vulkan-1.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>glad.lib;glfw3.lib;assimp.lib;vulkan-1.lib;fmod_vc.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
       <MapExports>true</MapExports>
     </Link>
   </ItemDefinitionGroup>
@@ -188,6 +188,7 @@
     <ClInclude Include="src\Raisin\Application.h" />
     <ClInclude Include="src\Raisin\Core.hpp" />
     <ClInclude Include="src\Raisin.hpp" />
+    <ClInclude Include="src\Raisin\DebugUtils\Debug.h" />
     <ClInclude Include="src\Raisin\EntryPoint.h" />
     <ClInclude Include="src\Raisin\imgui\crude_json.h" />
     <ClInclude Include="src\Raisin\imgui\imconfig.h" />
@@ -210,12 +211,17 @@
     <ClInclude Include="src\Raisin\Render\Mesh.h" />
     <ClInclude Include="src\Raisin\Render\Model.h" />
     <ClInclude Include="src\Raisin\Render\Opengl\OpenglAPI.h" />
-    <ClInclude Include="src\Raisin\Render\Primitives.h" />
+    <ClInclude Include="src\Raisin\Render\Primitives\Cubemap.h" />
+    <ClInclude Include="src\Raisin\Render\Primitives\Primitives.h" />
     <ClInclude Include="src\Raisin\Render\RaiEng.h" />
     <ClInclude Include="src\Raisin\Render\RenderAPI.h" />
+    <ClInclude Include="src\Raisin\Render\Scene.h" />
     <ClInclude Include="src\Raisin\Render\Shader.h" />
     <ClInclude Include="src\Raisin\Render\Vulkan\VulkanAPI.h" />
+    <ClInclude Include="src\Raisin\Sound\Sound.h" />
     <ClInclude Include="src\Raisin\Vector.h" />
+    <ClInclude Include="src\ThirdParty\cgltf\cgltf.h" />
+    <ClInclude Include="src\ThirdParty\nlohmann\json.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Raisin\Application.cpp" />
@@ -234,6 +240,7 @@
     <ClCompile Include="src\Raisin\Render\Mesh.cpp" />
     <ClCompile Include="src\Raisin\Render\Model.cpp" />
     <ClCompile Include="src\Raisin\Render\RaiEng.cpp" />
+    <ClCompile Include="src\Raisin\Render\Scene.cpp" />
     <ClCompile Include="src\Raisin\Render\Shader.cpp" />
   </ItemGroup>
   <ItemGroup>

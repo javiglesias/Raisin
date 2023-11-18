@@ -12,6 +12,7 @@ public:
 	{
 		printf("~SHADER\n");
 	}
+	void Init(char* _vertex_path, char* _fragment_path);
 	void use();
 	void setColor(glm::vec3 _color) { mColor = _color; }
 	void setBool(const std::string &name, bool value) const;
