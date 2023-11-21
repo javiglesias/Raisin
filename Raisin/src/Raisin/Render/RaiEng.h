@@ -1,15 +1,11 @@
 #pragma once
 #include "Model.h"
 #include "RenderAPI.h"
-#include "../imgui/imgui.h"
-#include "../imgui/imgui_impl_glfw.h"
-#include "../imgui/imgui_impl_opengl3.h"
-#include "../imgui/ImFileDialog.h"
-#include "../imgui/imgui_node_editor.h"
 #include "Primitives/Cubemap.h" 
 
 namespace RaisinEng
 {
+	inline unsigned char mFrameCPerf = 0;
 	inline std::vector<Mesh> oMeshes;
 	inline sCubemap mCubemap;
 	struct RenderObj
@@ -19,19 +15,19 @@ namespace RaisinEng
 		Model mModels[256];
 		void Draw();
 		RenderObj(){}
-		RenderObj(std::string path, Material* _Material)
+		RenderObj(std::string path)
 		{
-			AddModel(path, _Material);
+			AddModel(path);
 		}
-		void AddModel(std::string path, Material* _Material)
+		void AddModel(std::string path)
 		{
-			mModels[iCurrentModels] = Model(path, _Material, oMeshes);
+			mModels[iCurrentModels] = Model(path, oMeshes);
 			++iCurrentModels;
 		}
 	};
 	inline bool		bMouseCaptured	= false;
 	inline int		iCurrentObjs	= 0;
-	inline float	fCameraSpeed	= .4f;
+	inline float	fCameraSpeed	= .1f;
 	inline float	fLastXPosition	= 0.f;
 	inline float	fLastYPosition	= 0.f;
 	inline float	fYaw = 0.f;
@@ -48,8 +44,7 @@ namespace RaisinEng
 	inline glm::mat4 mProjectionMatrix{ 1.f };
 	inline Shader* oShader = nullptr, * oLightShader = nullptr;
 	inline RenderObj oObjsToDraw[256];
-	inline Model* oLight;
-	inline Material* oModelMaterial, * oLightMaterial;
+	inline float mPercentileFPS[255];
 
 	void mouse_press_callback(int _button, int _action, int _mods);
 	void _process_input(GLFWwindow* _window);

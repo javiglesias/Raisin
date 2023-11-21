@@ -84,9 +84,7 @@ class cglTFFile
 	Material* mMaterial;
 public:
 	cglTFFile(std::string _path);
-	void Draw(glm::mat4 view,
-		glm::mat4 projection, glm::vec3 camera_position, glm::vec3 _lightPosition,
-		glm::vec3 _lightColor);
+	void Draw(glm::mat4 view, glm::mat4 projection, glm::vec3 camera_position);
 private:
 	void ProcessScene();
 };

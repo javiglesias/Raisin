@@ -7,23 +7,21 @@
 #include <iostream>
 #include <assimp/Importer.hpp>
 #include <assimp/postprocess.h>
-#include "../stb_image/stb_image.h"
 
 
-void Model::Draw(glm::mat4 view, glm::mat4 projection, glm::vec3 camera_position, glm::vec3 _lightPosition,
-	glm::vec3 _lightColor)
+void Model::Draw(glm::mat4 view, glm::mat4 projection, glm::vec3 camera_position)
 {
 	// Recorremos todas las meshes del modelo y las pintamos.
 	if (mScene != nullptr)
 	{
-		mScene->Draw(view, projection, camera_position, _lightPosition, _lightColor);
+		mScene->Draw(view, projection, camera_position);
 		return;
 	}
 
 	glm::mat4 model = translate(glm::mat4{ 1.f }, mPosition);
 	for (unsigned int i = 0; i < meshes.size(); i++)
 	{
-		meshes[i].Draw(mMaterial, model, view, projection, camera_position, _lightPosition, _lightColor);
+		meshes[i].Draw(mMaterial, model, view, projection, camera_position);
 	}
 }
 
@@ -39,6 +37,7 @@ bool Model::loadModel(std::string _path)
 		mScene = new cglTFFile(_path);
 	} else*/
 	{
+		//customTexture = _customTexture.c_str();
 		Assimp::Importer importer;
 		const aiScene* scene = importer.ReadFile(_path, aiProcess_Triangulate | aiProcess_FlipUVs);
 		if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode)
@@ -49,6 +48,8 @@ bool Model::loadModel(std::string _path)
 		directory = _path.substr(0, _path.find_last_of('/'));
 		directory = directory + '/';
 		processNode(scene->mRootNode, scene);
+		
+		importer.FreeScene();
 	}
 	return true;
 }
@@ -103,33 +104,28 @@ Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene)
 			indices.push_back(face.mIndices[j]);
 		}
 	}
-	if (mesh->mMaterialIndex > 0)
-	{
-		aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
-		std::vector<Texture> diffuse_maps = LoadMaterialTextures(material, aiTextureType_DIFFUSE, "diffuse");
-		textures.insert(textures.end(), diffuse_maps.begin(), diffuse_maps.end());
-		std::vector<Texture> specular_maps = LoadMaterialTextures(material, aiTextureType_SPECULAR, "specular");
-		textures.insert(textures.end(), specular_maps.begin(), specular_maps.end());
-
-	}
-	else
+	if (strcmp(customTexture, "") != 0)
 	{
 		aiMaterial* material{};
-		if (strcmp(customTexture, "") != 0)
-		{
-			std::string sCustomTexture(customTexture);
-			sCustomTexture += ".png";
-			textures.push_back(LoadCustomTexture(sCustomTexture));
+		std::string sCustomTexture(customTexture);
+		sCustomTexture += ".png";
+		textures.push_back(LoadCustomTexture(sCustomTexture));
 
-			sCustomTexture = customTexture;
-			sCustomTexture = sCustomTexture + "_diffuse.png";
-			textures.push_back(LoadCustomTexture(sCustomTexture));
+		/*sCustomTexture = customTexture;
+		sCustomTexture = sCustomTexture + "_diffuse.png";
+		textures.push_back(LoadCustomTexture(sCustomTexture));
 
-			sCustomTexture = customTexture;
-			sCustomTexture = sCustomTexture + "_specular.png";
-			textures.push_back(LoadCustomTexture(sCustomTexture));
-		}
-
+		sCustomTexture = customTexture;
+		sCustomTexture = sCustomTexture + "_specular.png";
+		textures.push_back(LoadCustomTexture(sCustomTexture));*/
+	}
+	else if (mesh->mMaterialIndex > 0)
+	{
+			aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
+			std::vector<Texture> diffuse_maps = LoadMaterialTextures(material, aiTextureType_DIFFUSE, "diffuse");
+			textures.insert(textures.end(), diffuse_maps.begin(), diffuse_maps.end());
+			std::vector<Texture> specular_maps = LoadMaterialTextures(material, aiTextureType_SPECULAR, "specular");
+			textures.insert(textures.end(), specular_maps.begin(), specular_maps.end());
 	}
 	return Mesh(vertices, indices, textures);
 }

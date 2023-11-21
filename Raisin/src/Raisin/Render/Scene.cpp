@@ -233,9 +233,7 @@ cglTFFile::cglTFFile(std::string _path)
 	}
 }
 
-void cglTFFile::Draw(glm::mat4 view,
-	glm::mat4 projection, glm::vec3 camera_position, glm::vec3 _lightPosition,
-	glm::vec3 _lightColor)
+void cglTFFile::Draw(glm::mat4 view, glm::mat4 projection, glm::vec3 camera_position)
 {
 }
 

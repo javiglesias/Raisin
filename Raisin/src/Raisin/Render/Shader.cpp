@@ -15,7 +15,9 @@ void Shader::Init(char* _vertex_path, char* _fragment_path)
 	std::ifstream v_shader_file;
 	std::ifstream f_shader_file;
 	// Hay que compilar el Uber SHader antes de tenerlo disponible.
-	CompileShader(_fragment_path);
+	FILE* f = fopen(_fragment_path, "r");
+	if(!f) CompileShader(_fragment_path);
+
 	if (mVertShaderCode == "")
 	{
 		v_shader_file.open(_vertex_path);
@@ -85,7 +87,7 @@ void Shader::CompileShader(char* _path)
 		shaderFile.close();
 		shaderCode = shaderBuffer.str();
 	}
-
+	//auto _include = shaderCode.find("#include ", _include);
 
 	def = shaderCode.find("#ifdef ", def);
 	std::string _uberFrag;

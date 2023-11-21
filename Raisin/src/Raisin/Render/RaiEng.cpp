@@ -45,18 +45,6 @@ void mouse_movement_callback(GLFWwindow* _window, double x, double y)
 		RaisinEng::fLastYPosition = y;
 	}
 }
-//API functions
-void RaisinEng::_process_input(GLFWwindow* _window)
-{
-	glfwSetWindowShouldClose(_window, glfwGetKey(_window, GLFW_KEY_ESCAPE));
-	for (int i = 0; i < GLFW_KEY_LAST; i++)
-	{
-		if (glfwGetKey(_window, i))
-		{
-			_process_input(i);
-		}
-	}
-}
 
 void RaisinEng::_Init(int _Width, int _Height, const char* _AppName)
 {
@@ -68,39 +56,34 @@ void RaisinEng::_Init(int _Width, int _Height, const char* _AppName)
 #ifdef _OPENGL
 	Editor_Init();
 #endif
-	_add_callback_input( eINPUTKEY(GLFW_KEY_W), []()
+	/*
+	 *	@param[in] window The window that received the event.
+	 *  @param[in] key The [keyboard key](@ref keys) that was pressed or released.
+	 *  @param[in] scancode The system-specific scancode of the key.
+	 *  @param[in] action `GLFW_PRESS`, `GLFW_RELEASE` or `GLFW_REPEAT`.  Future
+	 *  releases may add more actions.
+	 *  @param[in] mods Bit field describing which [modifier keys](@ref mods) were
+	 *  held down.
+	 */
+	glfwSetKeyCallback(m_window, [](GLFWwindow* _window, int _key, int _scancode, int _action, int)
 	{
+		if(_key == GLFW_KEY_W && _action == GLFW_PRESS)
 			RaisinEng::vCameraPosition += RaisinEng::fCameraSpeed * RaisinEng::vCameraForward;
-	});
-	_add_callback_input(eINPUTKEY(GLFW_KEY_A), []()
-	{
+		if (_key == GLFW_KEY_A && _action == GLFW_PRESS)
 			RaisinEng::vCameraPosition += glm::normalize(glm::cross(
 				RaisinEng::vCameraUp, RaisinEng::vCameraForward)) * RaisinEng::fCameraSpeed;
-	});
-	_add_callback_input(eINPUTKEY(GLFW_KEY_S), []()
-	{
+		if (_key == GLFW_KEY_S && _action == GLFW_PRESS)
 			RaisinEng::vCameraPosition -= RaisinEng::fCameraSpeed * RaisinEng::vCameraForward;
-	});
-	_add_callback_input(eINPUTKEY(GLFW_KEY_D),[]()
-	{
+		if (_key == GLFW_KEY_D && _action == GLFW_PRESS)
 			RaisinEng::vCameraPosition -= glm::normalize(glm::cross(
 				RaisinEng::vCameraUp, RaisinEng::vCameraForward)) * RaisinEng::fCameraSpeed;
+		if (_key == GLFW_KEY_R && _action == GLFW_PRESS)
+			RaisinEng::vCameraPosition = glm::vec3{ 0.f };
+		if (_key == GLFW_KEY_ESCAPE && _action == GLFW_PRESS)
+			glfwSetWindowShouldClose(m_window, true);
 	});
-	_add_callback_input(eINPUTKEY(GLFW_KEY_R),[]()
-	{
-			RaisinEng::vCameraPosition = glm::vec3{0.f};
-	});
-
-	//Models && "Materials"
-	oModelMaterial = new Material("basic_shader", "basic_shader", false, glm::vec3(1.f));
-	oLightMaterial = new Material("basic_shader", "basic_shader", false, glm::vec3(0.f));
-
-	oLight = new Model("resources/models/BasicShapes/LightBulb.obj", oLightMaterial, oMeshes);
-
-	/*oObjsToDraw[iCurrentObjs].AddModel("resources/models/backpack/backpack.obj", oModelMaterial);	
-	++iCurrentObjs;*/
 	InitSoundSystem();
-	mCubemap.LoadTexData();
+	mCubemap.LoadCubeData();
 }
 
 void RaisinEng::Editor_Init()
@@ -127,32 +110,32 @@ void RaisinEng::_Loop()
 	{
 		currentTimeFrame += glfwGetTime();
 		deltaTime = currentTimeFrame - lastTimeFrame;
-		lastTimeFrame = currentTimeFrame;
 		if(deltaTime >= 0.016f)
 		{
-			currentTimeFrame = 0.f;
-			_process_input(m_window);
+			mPercentileFPS[mFrameCPerf] = deltaTime;
+			++mFrameCPerf;
 			_ClearColorBuffer();
 			// Process Systems (Ticks)
-			SoundSysTick(deltaTime);
+			//SoundSysTick(deltaTime);
 			// Renderables
 			mProjectionMatrix = glm::perspective(glm::radians(40.f),
 				(800.f / 600.f), 0.3f, 100.f);
 			mViewMatrix = glm::lookAt(vCameraPosition, vCameraPosition + vCameraForward,
 				vCameraUp);
 			//mPrimitive._draw(mModelMatrix, mViewMatrix, mProjectionMatrix, vCameraPosition);
-			mCubemap.Draw(mModelMatrix, mViewMatrix, mProjectionMatrix, vCameraPosition);
 		// TODO: Ordenar los modelos por Material > Shaders
 			for (size_t i = 0; i < iCurrentObjs; i++)
 			{
 				oObjsToDraw[i].Draw();
 			}
-			oLight->Draw(mViewMatrix, mProjectionMatrix, vCameraPosition, vLightPosition, oLight->GetMaterial()->mLightColor);
+			mCubemap.Draw(mModelMatrix, mViewMatrix, mProjectionMatrix, vCameraPosition);
 	#ifdef _OPENGL
 			Editor_Loop();
 	#endif
 			glfwSwapBuffers(m_window);
 			glfwPollEvents();
+			lastTimeFrame = currentTimeFrame;
+			currentTimeFrame = 0.f;
 		}
 	}
 }
@@ -194,27 +177,18 @@ void RaisinEng::Editor_Loop()
 		vLightPosition.x = tempLightPos[0];
 		vLightPosition.y = tempLightPos[1];
 		vLightPosition.z = tempLightPos[2];
-		oLight->mPosition = vLightPosition;
-
-		float tempLightColor[3] = { oLight->GetMaterial()->mLightColor.x,
-			oLight->GetMaterial()->mLightColor.y, oLight->GetMaterial()->mLightColor.z };
-		ImGui::ColorEdit3("Light Color", tempLightColor);
-		oLight->GetMaterial()->mLightColor.x = tempLightColor[0];
-		oLight->GetMaterial()->mLightColor.y = tempLightColor[1];
-		oLight->GetMaterial()->mLightColor.z = tempLightColor[2];
 		ImGui::End();
 	}
-	ImGui::Begin("Sound Visualizer");
+	ImGui::Begin("Visualizer");
 	{
 		ImGui::SliderFloat("Volume SFX", GetSetVolumeSFX(), 0.f, 1.f, "%.2f");
-		ImGui::NewLine();
 		if (ImGui::Button("Play SFX"))
 			PlaySFX("resources/Sound/NULL.ogg");
-		ImGui::NewLine();
 		ImGui::SliderFloat("Volume MUSIC", GetSetVolumeMUSIC(), 0.f, 1.f, "%.2f");
-		ImGui::NewLine();
 		ImGui::PlotLines("Sound Wave", GetSoundWave(), 12);
 		ImGui::NewLine();
+		// Performance
+		ImGui::PlotHistogram("Frame time", mPercentileFPS, 255);
 		ImGui::End();
 	}
 	ImGui::Begin("DEBUG PANEL");
@@ -239,7 +213,7 @@ void RaisinEng::Editor_Loop()
 		if (ifd::FileDialog::Instance().HasResult()) {
 			std::string res = ifd::FileDialog::Instance().GetResult().u8string();
 
-			oObjsToDraw[iCurrentObjs].AddModel(res, oModelMaterial);
+			oObjsToDraw[iCurrentObjs].AddModel(res);
 			++iCurrentObjs;
 		}
 		ifd::FileDialog::Instance().Close();
@@ -277,6 +251,6 @@ void RaisinEng::RenderObj::Draw()
 	// Hacemos solo un UseShader, pero pintamos varios modelos.
 	for (int i = 0; i < 256; i++)
 	{
-		mModels[i].Draw(mViewMatrix, mProjectionMatrix, vCameraPosition, vLightPosition, oLight->GetMaterial()->mLightColor);
+		mModels[i].Draw(mViewMatrix, mProjectionMatrix, vCameraPosition);
 	}
 }	 

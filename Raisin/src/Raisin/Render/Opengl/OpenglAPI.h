@@ -5,10 +5,15 @@
 // GLAD goes first
 #include <glad/glad.h>
 #include "glm.hpp"
-#include "glad/glad.h"
 #include "GLFW/glfw3.h"
 #include "gtc/matrix_transform.hpp"
 #include "gtc/type_ptr.hpp"
+#include "../stb_image/stb_image.h"
+#include "../imgui/imgui.h"
+#include "../imgui/imgui_impl_glfw.h"
+#include "../imgui/imgui_impl_opengl3.h"
+#include "../imgui/imgui_node_editor.h"
+#include "../imgui/ImFileDialog.h"
 
 
 struct Vertex {
@@ -21,6 +26,10 @@ inline GLFWwindow& _CreateWindow(const char* _name, int _Width, int _Height)
 {
 	GLFWwindow* m_window = nullptr;
 	glfwInit();
+	glfwSetErrorCallback([](int _code, const char* _desc)
+		{
+			fprintf(stderr, "GLFW Error(%d): %s\n", _code, _desc);
+		});
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
 	glfwWindowHint(GLFW_OPENGL_PROFILE,
@@ -46,8 +55,10 @@ inline GLFWwindow& _CreateWindow(const char* _name, int _Width, int _Height)
 	}
 	glViewport(0, 0, _Width, _Height);
 	glEnable(GL_DEPTH_TEST);
-	glEnable(GL_POLYGON_OFFSET_LINE);
-	glPolygonOffset(-1.f, -1.f);
+	glEnable(GL_CULL_FACE);
+	glCullFace(GL_FRONT);
+	glFrontFace(GL_CCW);
+
 	return *m_window;
 }
 
@@ -96,8 +107,30 @@ inline unsigned int _CreateTexture(unsigned char* _texture_data, int _width, int
 	glGenTextures(1, &texture);
 	glBindTexture(GL_TEXTURE_2D, texture);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, _width, _heigth, 0, 
-		GL_RGB, GL_UNSIGNED_BYTE, _texture_data);
+		GL_RGBA, GL_UNSIGNED_BYTE, _texture_data);
 	glGenerateMipmap(GL_TEXTURE_2D);
+	return texture;
+}
+inline const unsigned int _CreateTextureFromFile(const char* _str)
+{
+	int width, heigth, nr_channels;
+	stbi_set_flip_vertically_on_load(false);
+	unsigned char* texture_data = stbi_load(_str,
+		&width, &heigth, &nr_channels, 0);
+	unsigned int texture = -1;
+	if (texture_data)
+	{
+		glGenTextures(1, &texture);
+		glBindTexture(GL_TEXTURE_2D, texture);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, heigth, 0, GL_RGB, GL_UNSIGNED_BYTE,
+			texture_data);
+		glGenerateMipmap(GL_TEXTURE_2D);
+		stbi_image_free(texture_data);
+	}
 	return texture;
 }
 
@@ -110,21 +143,21 @@ inline unsigned int _CreateBuffers(std::vector<unsigned int> _indices, std::vect
 
 	glBindVertexArray(VAO);
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
-	if (_vertices.size() <= 0) __debugbreak();
 	glBufferData(GL_ARRAY_BUFFER, _vertices.size() * sizeof(Vertex),
 		&_vertices[0], GL_STREAM_DRAW);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, _indices.size() * sizeof(unsigned int),
 		&_indices[0], GL_DYNAMIC_DRAW);
-
+	//position
 	glEnableVertexAttribArray(0);
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex),
 		(void*)0);
-
+	// Normal
 	glEnableVertexAttribArray(1);
 	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex),
 		(void*)offsetof(Vertex, normal));
 
+	// Texture
 	glEnableVertexAttribArray(2);
 	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex),
 		(void*)offsetof(Vertex, texcoord));
@@ -165,7 +198,7 @@ inline unsigned int _CreateVAOData(float* _Vertices, int _VertSize)
 	glGenBuffers(1, &VBO);
 	glBindVertexArray(VAO);
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
-	glBufferData(GL_ARRAY_BUFFER, _VertSize, _Vertices, GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(float) * _VertSize, _Vertices, GL_STATIC_DRAW);
 	glEnableVertexAttribArray(0);
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
 	return VAO;
@@ -201,7 +234,7 @@ inline void _DrawArrays(glm::mat4 _ModelMatrix, glm::mat4 _ViewMatrix, glm::mat4
 
 inline unsigned int _ShaderUsed = -1;
 inline void _DrawElements(glm::mat4 _ModelMatrix, glm::mat4 _ViewMatrix, glm::mat4 _ProjectionMatrix, glm::vec3 _CameraPosition,
-	glm::vec3 _LightPosition, glm::vec3 _LightColor, Material* _Material, unsigned int _VAO, unsigned int _primitive, int _indicesSize)
+	Material* _Material, unsigned int _VAO, unsigned int _primitive, int _indicesSize)
 {
 	// obtenemos los uniforms para las transformaciones 3d
 	unsigned int modelMatrix_location = glGetUniformLocation(_Material->mShaderId, "ModelMatrix");
@@ -217,7 +250,8 @@ inline void _DrawElements(glm::mat4 _ModelMatrix, glm::mat4 _ViewMatrix, glm::ma
 		_UseShader(_Material->mShaderId);
 	}
 
-	//glPolygonMode(GL_FRONT_AND_BACK, _Material->mMode);
+	glPolygonMode(GL_FRONT, _Material->mMode);
+	/*glBindTexture(GL_TEXTURE_2D, _Material->mTextureId);*/
 	glBindVertexArray(_VAO);
 
 	// Mandamos los uniforms a la GPU
@@ -229,10 +263,10 @@ inline void _DrawElements(glm::mat4 _ModelMatrix, glm::mat4 _ViewMatrix, glm::ma
 		glUniformMatrix4fv(projectionMatrix_location, 1, GL_FALSE, value_ptr(_ProjectionMatrix));
 	if (cameraPosition_location != -1)
 		glUniform3fv(cameraPosition_location, 1, value_ptr(_CameraPosition));
-	if (lightPosition_location != -1)
+	/*if (lightPosition_location != -1)
 		glUniform3fv(lightPosition_location, 1, value_ptr(_LightPosition));
 	if (lightColor_location != -1)
-		glUniform3fv(lightColor_location, 1, value_ptr(_LightColor));
+		glUniform3fv(lightColor_location, 1, value_ptr(_LightColor));*/
 
 	glDrawElements(_primitive, _indicesSize, GL_UNSIGNED_INT, 0);
 }
