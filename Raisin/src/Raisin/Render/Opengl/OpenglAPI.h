@@ -107,10 +107,11 @@ inline unsigned int _CreateTexture(unsigned char* _texture_data, int _width, int
 	glGenTextures(1, &texture);
 	glBindTexture(GL_TEXTURE_2D, texture);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, _width, _heigth, 0, 
-		GL_RGBA, GL_UNSIGNED_BYTE, _texture_data);
+		GL_RGB, GL_UNSIGNED_BYTE, _texture_data);
 	glGenerateMipmap(GL_TEXTURE_2D);
 	return texture;
 }
+
 inline const unsigned int _CreateTextureFromFile(const char* _str)
 {
 	int width, heigth, nr_channels;
@@ -204,10 +205,31 @@ inline unsigned int _CreateVAOData(float* _Vertices, int _VertSize)
 	return VAO;
 }
 
+inline void _SetShadeUniformrBool(unsigned int _shaderId, const char* _name, bool value) 
+{
+	glUniform1i(glGetUniformLocation(_shaderId, _name), (int)value);
+}
+
+inline void _SetShadeUniformFloat(unsigned int _shaderId, const char* _name, float value)
+{
+	glUniform1f(glGetUniformLocation(_shaderId, _name), value);
+}
+
+inline void _SetShadeUniformInt(unsigned int _shaderId, const char* _name, int value)
+{
+	glUniform1i(glGetUniformLocation(_shaderId, _name), value);
+}
+
+inline void _SetShadeUniformVec3(unsigned int _shaderId, const char* _name, glm::vec3 value)
+{
+	//glUniform3fv(glGetUniformLocation(id, name.c_str()), value);
+}
+
 inline void _UseShader(unsigned int _shaderId)
 {
 	glUseProgram(_shaderId);
 }
+
 inline void _DrawArrays(glm::mat4 _ModelMatrix, glm::mat4 _ViewMatrix, glm::mat4 _ProjectionMatrix, glm::vec3 _CameraPosition,
 	unsigned int _shader, unsigned int _VAO, unsigned int _primitive,unsigned int _first, int _indicesSize)
 {
@@ -251,7 +273,6 @@ inline void _DrawElements(glm::mat4 _ModelMatrix, glm::mat4 _ViewMatrix, glm::ma
 	}
 
 	glPolygonMode(GL_FRONT, _Material->mMode);
-	/*glBindTexture(GL_TEXTURE_2D, _Material->mTextureId);*/
 	glBindVertexArray(_VAO);
 
 	// Mandamos los uniforms a la GPU

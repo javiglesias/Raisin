@@ -206,6 +206,7 @@
     <ClInclude Include="src\Raisin\imgui\imstb_textedit.h" />
     <ClInclude Include="src\Raisin\imgui\imstb_truetype.h" />
     <ClInclude Include="src\Raisin\Input\Input.h" />
+    <ClInclude Include="src\Raisin\Render\DAO\HashTable.h" />
     <ClInclude Include="src\Raisin\Render\DirectX\DX12API.h" />
     <ClInclude Include="src\Raisin\Render\Material.h" />
     <ClInclude Include="src\Raisin\Render\Mesh.h" />
@@ -216,7 +217,6 @@
     <ClInclude Include="src\Raisin\Render\RaiEng.h" />
     <ClInclude Include="src\Raisin\Render\RenderAPI.h" />
     <ClInclude Include="src\Raisin\Render\Scene.h" />
-    <ClInclude Include="src\Raisin\Render\Shader.h" />
     <ClInclude Include="src\Raisin\Render\Vulkan\VulkanAPI.h" />
     <ClInclude Include="src\Raisin\Sound\Sound.h" />
     <ClInclude Include="src\Raisin\Vector.h" />
@@ -241,7 +241,6 @@
     <ClCompile Include="src\Raisin\Render\Model.cpp" />
     <ClCompile Include="src\Raisin\Render\RaiEng.cpp" />
     <ClCompile Include="src\Raisin\Render\Scene.cpp" />
-    <ClCompile Include="src\Raisin\Render\Shader.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="src\Raisin\imgui\imgui_bezier_math.inl" />

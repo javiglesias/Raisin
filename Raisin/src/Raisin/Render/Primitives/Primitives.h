@@ -15,7 +15,7 @@ private:
 	glm::mat4 mViewMatrix{ 1.f };
 	glm::mat4 mProjectionMatrix{ 1.f };
 	glm::vec3 mCameraPosition{1.f};
-	Shader mShader;
+	unsigned int mshaderid;
 public:
 	void _calculateSphere()
 	{
@@ -26,7 +26,7 @@ public:
 			mVertices[i + 2] = 0.f;
 		}
 	}
-	sSphere() : mShader("resources/Shaders/basic_shape_shader.vert", "resources/Shaders/basic_shape_shader.frag")
+	sSphere() : mshaderid(_CreateShaderData("resources/Shaders/basic_shape_shader.vert", "resources/Shaders/basic_shape_shader.frag"))
 	{
 		VAO = _Create2DSphere(mRadio, mCenterX, mCenterY, mAngle);
 
@@ -34,7 +34,7 @@ public:
 	void _draw(glm::mat4 _ModelMatrix, glm::mat4 _ViewMatrix, glm::mat4 _ProjectionMatrix, glm::vec3 _CameraPosition)
 	{
 		glPolygonMode(GL_FRONT, GL_FILL);
-		_DrawArrays(_ModelMatrix, _ViewMatrix, _ProjectionMatrix, _CameraPosition, mShader.id, 
+		_DrawArrays(_ModelMatrix, _ViewMatrix, _ProjectionMatrix, _CameraPosition, mshaderid,
 			VAO, GL_POINTS, 0, 48);
 	}
 };

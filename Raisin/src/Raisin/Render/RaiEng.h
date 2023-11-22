@@ -42,7 +42,6 @@ namespace RaisinEng
 	inline glm::mat4 mLightModelMatrix{ 1.f };
 	inline glm::mat4 mViewMatrix{ 1.f };
 	inline glm::mat4 mProjectionMatrix{ 1.f };
-	inline Shader* oShader = nullptr, * oLightShader = nullptr;
 	inline RenderObj oObjsToDraw[256];
 	inline float mPercentileFPS[255];
 

@@ -45,8 +45,8 @@ bool Model::loadModel(std::string _path)
 			std::cerr << "Error loading the model " << importer.GetErrorString() << '\n';
 			return false;
 		}
-		directory = _path.substr(0, _path.find_last_of('/'));
-		directory = directory + '/';
+		directory = _path.substr(0, _path.find_last_of('\\'));
+		directory = directory + '\\';
 		processNode(scene->mRootNode, scene);
 		
 		importer.FreeScene();
@@ -104,28 +104,17 @@ Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene)
 			indices.push_back(face.mIndices[j]);
 		}
 	}
-	if (strcmp(customTexture, "") != 0)
+	if (mesh->mMaterialIndex > 0)
 	{
-		aiMaterial* material{};
-		std::string sCustomTexture(customTexture);
-		sCustomTexture += ".png";
-		textures.push_back(LoadCustomTexture(sCustomTexture));
-
-		/*sCustomTexture = customTexture;
-		sCustomTexture = sCustomTexture + "_diffuse.png";
-		textures.push_back(LoadCustomTexture(sCustomTexture));
-
-		sCustomTexture = customTexture;
-		sCustomTexture = sCustomTexture + "_specular.png";
-		textures.push_back(LoadCustomTexture(sCustomTexture));*/
-	}
-	else if (mesh->mMaterialIndex > 0)
-	{
+		if(mesh->mMaterialIndex != materialLastIndex)
+		{
 			aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
 			std::vector<Texture> diffuse_maps = LoadMaterialTextures(material, aiTextureType_DIFFUSE, "diffuse");
 			textures.insert(textures.end(), diffuse_maps.begin(), diffuse_maps.end());
 			std::vector<Texture> specular_maps = LoadMaterialTextures(material, aiTextureType_SPECULAR, "specular");
 			textures.insert(textures.end(), specular_maps.begin(), specular_maps.end());
+			materialLastIndex = mesh->mMaterialIndex;
+		}
 	}
 	return Mesh(vertices, indices, textures);
 }

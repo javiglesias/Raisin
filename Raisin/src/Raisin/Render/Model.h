@@ -24,6 +24,7 @@ public:
 	Material* GetMaterial() const { return mMaterial; }
 	void Draw(glm::mat4 view, glm::mat4 projection, glm::vec3 camera_position);
 private:
+	unsigned int materialLastIndex = -1;
 	char customTexture[128] = ""; // "customTexture"_specular.png
 	int width, heigth, nr_channels;
 	std::vector<Mesh> meshes;

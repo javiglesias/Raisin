@@ -15,6 +15,7 @@ Mesh::Mesh(std::vector<Vertex> _vertices, std::vector<unsigned int> _indices, st
 void Mesh::Draw(Material* _Material, glm::mat4 model, glm::mat4 view, 
 	glm::mat4 projection, glm::vec3 camera_position)
 {
+	
 	_DrawElements(model, view, projection, camera_position, _Material,
 		VAO, GL_TRIANGLES, indices.size());
 }
