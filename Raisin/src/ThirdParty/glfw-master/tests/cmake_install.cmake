@@ -1,4 +1,4 @@
-# Install script for directory: C:/Users/Alientech/Downloads/glfw-master/tests
+# Install script for directory: C:/dev/Raisin/Raisin/src/ThirdParty/glfw-master/tests
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)

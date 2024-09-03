@@ -1,30 +1,13 @@
 #pragma once
 #include "Model.h"
 #include "RenderAPI.h"
-#include "Primitives/Cubemap.h" 
+//#include "Primitives/Cubemap.h" 
 
 namespace RaisinEng
 {
 	inline unsigned char mFrameCPerf = 0;
-	inline std::vector<Mesh> oMeshes;
-	inline sCubemap mCubemap;
-	struct RenderObj
-	{
-		int	iCurrentModels = 0;
-		Material* mMat;
-		Model mModels[256];
-		void Draw();
-		RenderObj(){}
-		RenderObj(std::string path)
-		{
-			AddModel(path);
-		}
-		void AddModel(std::string path)
-		{
-			mModels[iCurrentModels] = Model(path, oMeshes);
-			++iCurrentModels;
-		}
-	};
+	//inline std::vector<Mesh> oMeshes;
+	//inline sCubemap mCubemap;
 	inline bool		bMouseCaptured	= false;
 	inline int		iCurrentObjs	= 0;
 	inline float	fCameraSpeed	= .1f;
@@ -42,7 +25,8 @@ namespace RaisinEng
 	inline glm::mat4 mLightModelMatrix{ 1.f };
 	inline glm::mat4 mViewMatrix{ 1.f };
 	inline glm::mat4 mProjectionMatrix{ 1.f };
-	inline RenderObj oObjsToDraw[256];
+	inline Model* mModels[256];
+	inline int iCurrentModels=0;
 	inline float mPercentileFPS[255];
 
 	void mouse_press_callback(int _button, int _action, int _mods);

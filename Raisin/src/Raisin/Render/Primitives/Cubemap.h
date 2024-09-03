@@ -11,7 +11,7 @@ struct sCubemap
 	unsigned int	mVAO = -1;
 	unsigned int	mShaderID = -1;
 	unsigned int	mTexture = -1;
-	std::vector<Vertex> mVertices;
+	std::vector<Vertex*> mVertices;
 	std::vector<unsigned int> mIndices;
 	Material		mMaterial;
 	int mWidth		= 0;
@@ -59,7 +59,7 @@ struct sCubemap
 	{
 		glm::mat4 model{1.f};
 		glm::scale(model, glm::vec3{50.f});
-		mMaterial.mTextureId = mTextureId;
+		//mMaterial.mTextureId = mTextureId;
 		_DrawElements(_ModelMatrix, _ViewMatrix, _ProjectionMatrix, _CameraPosition, &mMaterial, mVAO, GL_TRIANGLES,
 			mIndices.size());
 	}
@@ -71,19 +71,19 @@ struct sCubemap
 			aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
 			for (unsigned int i = 0; i < mesh->mNumVertices; i++)
 			{
-				Vertex vertex{};
+				Vertex* vertex = new Vertex();
 				try
 				{
-					vertex.position = glm::vec3(mesh->mVertices[i].x, mesh->mVertices[i].y, mesh->mVertices[i].z);
+					vertex->mPosition = glm::vec3(mesh->mVertices[i].x, mesh->mVertices[i].y, mesh->mVertices[i].z);
 					if (mesh->mNormals != nullptr)
-						vertex.normal = glm::vec3(mesh->mNormals[i].x, mesh->mNormals[i].y, mesh->mNormals[i].z);
+						vertex->mNormal = glm::vec3(mesh->mNormals[i].x, mesh->mNormals[i].y, mesh->mNormals[i].z);
 					if (mesh->mTextureCoords[0])
 					{
-						vertex.texcoord = glm::vec2(mesh->mTextureCoords[0]->x, mesh->mTextureCoords[0]->y);
+						vertex->mTexcoord = glm::vec2(mesh->mTextureCoords[0]->x, mesh->mTextureCoords[0]->y);
 					}
 					else
 					{
-						vertex.texcoord = glm::vec2(0.f, 0.f);
+						vertex->mTexcoord = glm::vec2(0.f, 0.f);
 					}
 				}
 				catch (std::exception ex)

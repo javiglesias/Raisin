@@ -1,9 +1,9 @@
 
-if (NOT EXISTS "C:/Users/Alientech/Downloads/glfw-master/install_manifest.txt")
-    message(FATAL_ERROR "Cannot find install manifest: \"C:/Users/Alientech/Downloads/glfw-master/install_manifest.txt\"")
+if (NOT EXISTS "C:/dev/Raisin/Raisin/src/ThirdParty/glfw-master/install_manifest.txt")
+    message(FATAL_ERROR "Cannot find install manifest: \"C:/dev/Raisin/Raisin/src/ThirdParty/glfw-master/install_manifest.txt\"")
 endif()
 
-file(READ "C:/Users/Alientech/Downloads/glfw-master/install_manifest.txt" files)
+file(READ "C:/dev/Raisin/Raisin/src/ThirdParty/glfw-master/install_manifest.txt" files)
 string(REGEX REPLACE "\n" ";" files "${files}")
 
 foreach (file ${files})

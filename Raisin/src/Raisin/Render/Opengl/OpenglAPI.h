@@ -17,9 +17,9 @@
 
 
 struct Vertex {
-	glm::vec3 position = glm::vec3(0);
-	glm::vec3 normal = glm::vec3(0);
-	glm::vec2 texcoord = glm::vec2(0);
+	glm::vec3 mPosition = glm::vec3(0);
+	glm::vec3 mNormal = glm::vec3(0);
+	glm::vec2 mTexcoord = glm::vec2(0);
 };
 
 inline GLFWwindow& _CreateWindow(const char* _name, int _Width, int _Height)
@@ -54,10 +54,10 @@ inline GLFWwindow& _CreateWindow(const char* _name, int _Width, int _Height)
 		exit(-1);
 	}
 	glViewport(0, 0, _Width, _Height);
-	glEnable(GL_DEPTH_TEST);
+	/*glEnable(GL_DEPTH_TEST);
 	glEnable(GL_CULL_FACE);
 	glCullFace(GL_FRONT);
-	glFrontFace(GL_CCW);
+	glFrontFace(GL_CCW);*/
 
 	return *m_window;
 }
@@ -112,64 +112,73 @@ inline unsigned int _CreateTexture(unsigned char* _texture_data, int _width, int
 	return texture;
 }
 
-inline const unsigned int _CreateTextureFromFile(const char* _str)
+inline const unsigned int _CreateTextureFromFile(const char* _str, int* W_, int* H_, int* NChannels_)
 {
-	int width, heigth, nr_channels;
 	stbi_set_flip_vertically_on_load(false);
 	unsigned char* texture_data = stbi_load(_str,
-		&width, &heigth, &nr_channels, 0);
+		W_, H_, NChannels_, 0);
 	unsigned int texture = -1;
 	if (texture_data)
 	{
 		glGenTextures(1, &texture);
-		glBindTexture(GL_TEXTURE_2D, texture);
+		glBindTextureUnit(GL_TEXTURE_2D, texture); // Sustituye al activate y bind
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, heigth, 0, GL_RGB, GL_UNSIGNED_BYTE,
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, *W_, *H_, 0, GL_RGB, GL_UNSIGNED_BYTE,
 			texture_data);
-		glGenerateMipmap(GL_TEXTURE_2D);
+		//glGenerateMipmap(GL_TEXTURE_2D);
+		//glTextureStorage2D(texture, 9, GL_TEXTURE_2D, *W_,  *H_);
 		stbi_image_free(texture_data);
 	}
 	return texture;
 }
 
-inline unsigned int _CreateBuffers(std::vector<unsigned int> _indices, std::vector<Vertex> _vertices)
+inline unsigned int _CreateBuffers(size_t _NumIndices, unsigned int* _firstIndex, size_t _NumVertices,
+					Vertex* _firstVertex, unsigned int* VAO_, unsigned int* VBO_, unsigned int* EBO_)
 {
-	unsigned int VAO, VBO, EBO;
-	glGenVertexArrays(1, &VAO);
-	glGenBuffers(1, &VBO);
-	glGenBuffers(1, &EBO);
+	
+	glGenVertexArrays(1, VAO_);
+	glBindVertexArray(*VAO_);
 
-	glBindVertexArray(VAO);
-	glBindBuffer(GL_ARRAY_BUFFER, VBO);
-	glBufferData(GL_ARRAY_BUFFER, _vertices.size() * sizeof(Vertex),
-		&_vertices[0], GL_STREAM_DRAW);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, _indices.size() * sizeof(unsigned int),
-		&_indices[0], GL_DYNAMIC_DRAW);
+	glGenBuffers(1, VBO_);
+	glBindBuffer(GL_ARRAY_BUFFER, *VBO_);
+	glBufferData(GL_ARRAY_BUFFER, _NumVertices * sizeof(Vertex),
+		_firstVertex, GL_STREAM_DRAW);
+
+	if(_NumIndices > 0) // Elements
+	{
+		glGenBuffers(1, EBO_);
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, *EBO_);
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER, _NumIndices * sizeof(unsigned int),
+			_firstIndex, GL_DYNAMIC_DRAW);
+	}
+
 	//position
 	glEnableVertexAttribArray(0);
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex),
 		(void*)0);
+	glVertexArrayAttribBinding(*VAO_, 0, 0);
 	// Normal
 	glEnableVertexAttribArray(1);
 	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex),
-		(void*)offsetof(Vertex, normal));
+		(void*)offsetof(Vertex, mNormal));
+	glVertexArrayAttribBinding(*VAO_, 1, 0);
 
 	// Texture
 	glEnableVertexAttribArray(2);
 	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex),
-		(void*)offsetof(Vertex, texcoord));
-	glBindVertexArray(0);
-	return VAO;
+		(void*)offsetof(Vertex, mTexcoord));
+	glVertexArrayAttribBinding(*VAO_, 2, 0);
+
+	return *VAO_;
 }
 
 inline void _ClearColorBuffer()
 {
-	glClearColor(0, 188.f/255.f, 255.f, 1.f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	glClearColor(1.f, 1.f, 0.f, 1.f);
 }
 
 inline unsigned int _Create2DSphere(float _Radio, float _CenterX, float _CenterY, float _Angle)
@@ -229,17 +238,21 @@ inline void _UseShader(unsigned int _shaderId)
 {
 	glUseProgram(_shaderId);
 }
-
+inline unsigned int _ShaderUsed = -1;
 inline void _DrawArrays(glm::mat4 _ModelMatrix, glm::mat4 _ViewMatrix, glm::mat4 _ProjectionMatrix, glm::vec3 _CameraPosition,
-	unsigned int _shader, unsigned int _VAO, unsigned int _primitive,unsigned int _first, int _indicesSize)
+	Material* _Material, unsigned int _VAO, unsigned int _primitive,unsigned int _first, int _indicesSize)
 {
 	// obtenemos los uniforms para las transformaciones 3d
-	unsigned int modelMatrix_location = glGetUniformLocation(_shader, "ModelMatrix");
-	unsigned int viewMatrix_location = glGetUniformLocation(_shader, "ViewMatrix");
-	unsigned int ProjectionMatrix_location = glGetUniformLocation(_shader, "ProjectionMatrix");
-	unsigned int cameraPosition_location = glGetUniformLocation(_shader, "CameraPosition");
+	unsigned int modelMatrix_location = glGetUniformLocation(_Material->mShaderId, "ModelMatrix");
+	unsigned int viewMatrix_location = glGetUniformLocation(_Material->mShaderId, "ViewMatrix");
+	unsigned int ProjectionMatrix_location = glGetUniformLocation(_Material->mShaderId, "ProjectionMatrix");
+	unsigned int cameraPosition_location = glGetUniformLocation(_Material->mShaderId, "CameraPosition");
 
-	_UseShader(_shader);
+	if(_ShaderUsed != _Material->mShaderId)
+	{
+		_ShaderUsed = _Material->mShaderId;
+		_UseShader(_Material->mShaderId);
+	}
 	glBindVertexArray(_VAO);
 	// Mandamos los uniforms a la GPU
 	if (modelMatrix_location != -1)
@@ -254,7 +267,6 @@ inline void _DrawArrays(glm::mat4 _ModelMatrix, glm::mat4 _ViewMatrix, glm::mat4
 	glDrawArrays(_primitive, _first, _indicesSize);
 }
 
-inline unsigned int _ShaderUsed = -1;
 inline void _DrawElements(glm::mat4 _ModelMatrix, glm::mat4 _ViewMatrix, glm::mat4 _ProjectionMatrix, glm::vec3 _CameraPosition,
 	Material* _Material, unsigned int _VAO, unsigned int _primitive, int _indicesSize)
 {
@@ -271,8 +283,8 @@ inline void _DrawElements(glm::mat4 _ModelMatrix, glm::mat4 _ViewMatrix, glm::ma
 		_ShaderUsed = _Material->mShaderId;
 		_UseShader(_Material->mShaderId);
 	}
-
-	glPolygonMode(GL_FRONT, _Material->mMode);
+	glBindTextureUnit(GL_TEXTURE_2D, _Material->mTextureAmbient->id); // Sustituye al activate y bind
+	//glPolygonMode(GL_FRONT, _Material->mMode);
 	glBindVertexArray(_VAO);
 
 	// Mandamos los uniforms a la GPU

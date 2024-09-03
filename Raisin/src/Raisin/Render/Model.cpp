@@ -1,185 +1,211 @@
 #include "Model.h"
-#include "RaiEng.h"
-// GLAD goes first
-#include "glad/glad.h"
-// GLFW goes second
-#include "GLFW/glfw3.h" 
+#include "RaiEng.h" 
+#include "Mesh.h"
+//#include "Scene.h"
 #include <iostream>
-#include <assimp/Importer.hpp>
-#include <assimp/postprocess.h>
-
+#include "../cgltf/cgltf.h"
 
 void Model::Draw(glm::mat4 view, glm::mat4 projection, glm::vec3 camera_position)
 {
-	// Recorremos todas las meshes del modelo y las pintamos.
-	if (mScene != nullptr)
-	{
-		mScene->Draw(view, projection, camera_position);
-		return;
-	}
+	glm::mat4 model = glm::mat4{ 1.f }; 
+	model = glm::translate(model, mPosition);
+	model = glm::rotate<float>(model,9.f, glm::vec3(1, 0,0 ));
+	model = glm::scale(model, mScale);
 
-	glm::mat4 model = translate(glm::mat4{ 1.f }, mPosition);
-	for (unsigned int i = 0; i < meshes.size(); i++)
-	{
-		meshes[i].Draw(mMaterial, model, view, projection, camera_position);
-	}
+	for (unsigned int i = 0; i < iCurrentMeshes; i++)
+		mMeshes[i]->Draw(&mMaterials[mMeshes[i]->mMaterialid],model, view, projection, camera_position);
 }
 
-bool Model::loadModel(std::string _path)
+Model::Model(const char* _filepath, const char*  _modelName)
 {
-	const char* _pathChar = _path.c_str();
-	const int _pathSize = _path.size();
-	/*if (_pathChar[_pathSize - 4] == 'g' &&
-		_pathChar[_pathSize - 3] == 'l' &&
-		_pathChar[_pathSize - 2] == 't' &&
-		_pathChar[_pathSize - 1] == 'f')
+	cgltf_options options {};
+	char filename[128];
+	sprintf(filename, "%s%s", _filepath, _modelName);
+	cgltf_data* modelData = NULL;
+	cgltf_parse_file(&options, filename, &modelData);
+	if(modelData == NULL) exit(-999);
+	if(cgltf_load_buffers(&options, modelData, _filepath) != cgltf_result_success)
+		__debugbreak();
+	strcpy(mName, _modelName);
+	if(cgltf_validate(modelData) == cgltf_result_success)
 	{
-		mScene = new cglTFFile(_path);
-	} else*/
-	{
-		//customTexture = _customTexture.c_str();
-		Assimp::Importer importer;
-		const aiScene* scene = importer.ReadFile(_path, aiProcess_Triangulate | aiProcess_FlipUVs);
-		if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode)
+		printf("\nModel file validated (nodes %ld)", modelData->nodes_count);
+		//  MATERIALS
+		size_t materialID = 0;
+		if(modelData->materials_count > 0)
 		{
-			std::cerr << "Error loading the model " << importer.GetErrorString() << '\n';
-			return false;
-		}
-		directory = _path.substr(0, _path.find_last_of('\\'));
-		directory = directory + '\\';
-		processNode(scene->mRootNode, scene);
-		
-		importer.FreeScene();
-	}
-	return true;
-}
-
-void Model::processNode(aiNode* node, const aiScene* scene)
-{
-	for (unsigned int  i = 0; i < node->mNumMeshes; i++)
-	{
-		aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
-		meshes.push_back(processMesh(mesh, scene));
-	}
-	for (unsigned int i = 0; i < node->mNumChildren; i++)
-	{
-		processNode(node->mChildren[i], scene);
-	}
-}
-
-Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene)
-{
-	std::vector<Vertex> vertices;
-	std::vector<unsigned int> indices;
-	std::vector<Texture> textures;
-
-	for (unsigned int i = 0; i < mesh->mNumVertices; i++)
-	{
-		Vertex vertex{};
-		try
-		{
-			vertex.position = glm::vec3(mesh->mVertices[i].x, mesh->mVertices[i].y, mesh->mVertices[i].z);
-			if(mesh->mNormals != nullptr)
-				vertex.normal = glm::vec3(mesh->mNormals[i].x, mesh->mNormals[i].y, mesh->mNormals[i].z);
-			if (mesh->mTextureCoords[0])
+			for (size_t i = 0 ; i < modelData->materials_count; i++) 
 			{
-				vertex.texcoord = glm::vec2(mesh->mTextureCoords[0]->x, mesh->mTextureCoords[0]->y);
-			}
-			else
-			{
-				vertex.texcoord = glm::vec2(0.f, 0.f);
+				auto material = modelData->materials[i];
+				materialID = i;
+				fprintf(stderr, "Material %llu: %s\n", materialID, material.name);
+				//mMaterials[materialID].m_TextureSpecular = new Texture();
+				//mMaterials[materialID].m_TextureDiffuse = new  Texture();
+				if(material.normal_texture.texture != nullptr)
+				{
+					std::string pathTexture = std::string(material.normal_texture.texture->image->uri);
+					//mMaterials[materialID].m_TextureDiffuse->m_Path =  _filepath + pathTexture;
+				}
+				if(material.specular.specular_texture.texture != nullptr)
+				{
+					std::string pathTexture = std::string(material.specular.specular_texture.texture->image->uri);
+					//mMaterials[materialID].m_TextureSpecular->m_Path = _filepath + pathTexture;
+				}
+				if(material.pbr_metallic_roughness.base_color_texture.texture != nullptr)
+				{
+					std::string pathTexture = std::string(material.pbr_metallic_roughness.base_color_texture.texture->image->uri);
+					//material.pbr_metallic_roughness.metallic_roughness_texturematerial.
+					fprintf(stderr, "%s\n",  (_filepath + pathTexture).c_str());
+					char path[128];
+					sprintf(path, "%s\n",  (_filepath + pathTexture).c_str());
+					mMaterials[materialID].mTextureAmbient = new Texture(path);
+					//mMaterials[materialID].mTextureAmbient->mPath = _filepath + pathTexture;
+					
+				}
+				mMaterials[materialID].DefaultInit();
+				mMaterials[materialID].mState = Material::INITIALIZED;
+				/*mMaterials[materialID].m_TextureEmissive = new render::Texture();
+				mMaterials[materialID].m_TextureMetallicRoughness = new render::Texture();
+				mMaterials[materialID].m_TextureOcclusion = new render::Texture();
+				mMaterials[materialID].m_TextureNormal = new render::Texture();
+				mMaterials[materialID].m_TextureShadowMap = new render::Texture();*/
 			}
 		}
-		catch (std::exception ex)
+		else
 		{
-			std::cerr << "Error reading Position, normals or texcoords" << ex.what() << '\n';
+			//mMaterials[materialID].m_TextureSpecular = new Texture();
+			//mMaterials[materialID].m_TextureDiffuse =	new Texture();
+			mMaterials[materialID].mTextureAmbient = new Texture();
 		}
-		vertices.push_back(vertex);
-	}
-	for (unsigned int i = 0; i < mesh->mNumFaces; i++)
-	{
-		aiFace face = mesh->mFaces[i];
-		for (unsigned int j = 0; j < face.mNumIndices; j++)
+
+		for (cgltf_size n = 0; n < modelData->nodes_count; ++n)
 		{
-			indices.push_back(face.mIndices[j]);
+			auto mesh = modelData->nodes[n].mesh;
+			auto camera = modelData->nodes[n].camera;
+			if(mesh)
+			{
+				Mesh* tempMesh = new Mesh();
+				printf("\n\tMesh %zd %s (%ld)\n", n, mesh->name, mesh->primitives_count);
+				for(cgltf_size p = 0; p < mesh->primitives_count; p++)
+				{
+					printf("\tPrimitive %zd\n", p);
+					for(cgltf_size a = 0; a < mesh->primitives[p].attributes_count; a++)
+					{
+						tempMesh->mMaterialid = cgltf_material_index(modelData, mesh->primitives[p].material);
+						auto accessor = mesh->primitives[p].attributes[a].data;
+						Vertex* tempVertex = new Vertex();
+						if(cgltf_attribute_type_position == mesh->primitives[p].attributes[a].type)
+						{
+							if(accessor->type == cgltf_type_vec3)
+							{
+								fprintf(stderr, "vertex count %llu\n", accessor->count);
+								auto vertices = new float[3*accessor->count];
+								int n = 0; 
+								float *buffer = (float *)accessor->buffer_view->buffer->data + accessor->buffer_view->offset/sizeof(float) + accessor->offset/sizeof(float); 
+								for (unsigned int k = 0; k < accessor->count; k++) 
+								{
+									float tempVrtx[3];
+									for (int l = 0; l < 3; l++) 
+									{
+										vertices[3*k + l] = buffer[n + l];
+										tempVrtx[l] = buffer[n + l];
+									}
+									tempVertex->mPosition= glm::vec3(tempVrtx[0], tempVrtx[1], tempVrtx[2]);
+									if(tempMesh->mVertices.size() <= k)
+									{
+										tempVertex = new Vertex();
+										tempMesh->mVertices.push_back(*tempVertex);
+									}
+									else
+										tempMesh->mVertices[k].mPosition = tempVertex->mPosition;
+									n += (int)(accessor->stride/sizeof(float));
+								}
+							}
+						}
+						else if(cgltf_attribute_type_normal == mesh->primitives[p].attributes[a].type)
+						{
+							if(accessor->type == cgltf_type_vec3)
+							{
+								fprintf(stderr, "normal count %llu\n", accessor->count);
+								float* values = new float[3*accessor->count];
+								int n = 0; 
+								float *buffer = (float *)accessor->buffer_view->buffer->data + accessor->buffer_view->offset/sizeof(float) + accessor->offset/sizeof(float); 
+								for (unsigned int k = 0; k < accessor->count; k++) 
+								{
+									float tempNormal[3];
+									for (int l = 0; l < 3; l++) 
+									{
+										values[3*k + l] = buffer[n + l];
+										tempNormal[l] = buffer[n + l];
+									}
+									tempVertex->mNormal = glm::vec3(tempNormal[0], tempNormal[1], tempNormal[2]);
+									if(tempMesh->mVertices.size() <= k)
+									{
+										tempVertex = new Vertex();
+										tempMesh->mVertices.push_back(*tempVertex);
+									}
+									else
+										tempMesh->mVertices[k].mNormal = tempVertex->mNormal;
+									n += (int)(accessor->stride/sizeof(float));
+								}
+							}
+						}
+						else if(cgltf_attribute_type_tangent == mesh->primitives[p].attributes[a].type)
+						{
+
+						}
+						else if(cgltf_attribute_type_texcoord == mesh->primitives[p].attributes[a].type)
+						{
+							if(accessor->type == cgltf_type_vec2)
+							{
+								fprintf(stderr, "Texcoord count %llu\n", accessor->count);
+								float* values = new float[2*accessor->count];
+								int n = 0; 
+								float *buffer = (float *)accessor->buffer_view->buffer->data + accessor->buffer_view->offset/sizeof(float) + accessor->offset/sizeof(float); 
+								for (unsigned int k = 0; k < accessor->count; k++) 
+								{
+									float tempTexCoord[2];
+									for (int l = 0; l < 2; l++) 
+									{
+										values[2*k + l] = buffer[n + l];
+										tempTexCoord[l] = buffer[n + l];
+									}
+									tempVertex->mTexcoord = glm::vec2(tempTexCoord[0], tempTexCoord[1]);
+									if(tempMesh->mVertices.size() <= k)
+									{
+										tempVertex = new Vertex();
+										tempMesh->mVertices.push_back(*tempVertex);
+									}
+									else
+										tempMesh->mVertices[k].mTexcoord = tempVertex->mTexcoord;
+									n += (int)(accessor->stride/sizeof(float));
+								}
+							}
+						}
+						else 
+						{
+							fprintf(stderr,  "Deshecho: %s\n", mesh->primitives[p].attributes[a].name);
+						}
+					}
+					if(mesh->primitives[p].indices != NULL)
+					{
+						int n = 0; 
+						auto accessor = mesh->primitives[p].indices;
+						unsigned short index;
+						unsigned short *buffer = (unsigned short *)accessor->buffer_view->buffer->data + accessor->buffer_view->offset/sizeof(unsigned short) + accessor->offset/sizeof(unsigned short); 
+						for (unsigned int k = 0; k < accessor->count; k++) 
+						{
+							index = buffer[n];
+							// fprintf(stderr, "Index %d: ",index );
+							tempMesh->mIndices.push_back(index);
+							n += (int)(accessor->stride/sizeof(unsigned short));
+						}
+					}
+				}
+				tempMesh->setupMesh();
+				mMeshes[iCurrentMeshes] = tempMesh;
+				++iCurrentMeshes;
+			}
 		}
 	}
-	if (mesh->mMaterialIndex > 0)
-	{
-		if(mesh->mMaterialIndex != materialLastIndex)
-		{
-			aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
-			std::vector<Texture> diffuse_maps = LoadMaterialTextures(material, aiTextureType_DIFFUSE, "diffuse");
-			textures.insert(textures.end(), diffuse_maps.begin(), diffuse_maps.end());
-			std::vector<Texture> specular_maps = LoadMaterialTextures(material, aiTextureType_SPECULAR, "specular");
-			textures.insert(textures.end(), specular_maps.begin(), specular_maps.end());
-			materialLastIndex = mesh->mMaterialIndex;
-		}
-	}
-	return Mesh(vertices, indices, textures);
-}
-
-std::vector<Texture> Model::LoadMaterialTextures(aiMaterial* mat, aiTextureType texture_type, std::string name)
-{
-	std::vector<Texture> textures;
-	// Hacer un bucle que compruebe si la textura que se intenta cargar, ya estaba cargada en memoria, para optimizar.
-	for (unsigned int i = 0; i < mat->GetTextureCount(texture_type); i++)
-	{
-		aiString str;
-		mat->GetTexture(texture_type, i, &str);
-		Texture tex;
-		tex.id = TextureFromFile(str.C_Str(), directory);
-		tex.type = name;
-		tex.path = str.C_Str();
-		tex.heigth = heigth;
-		tex.width = width;
-		tex.nr_channels = nr_channels;
-		textures.push_back(tex);
-	}
-	return textures;
-}
-
-Texture Model::LoadCustomTexture(std::string _CustomTexture)
-{
-	Texture tex;
-	tex.id = TextureFromFile(_CustomTexture);
-	tex.type = customTexture;
-	tex.path = customTexture;
-	tex.heigth = heigth;
-	tex.width = width;
-	tex.nr_channels = nr_channels;
-	return tex;
-}
-
-unsigned int Model::TextureFromFile(std::string str, std::string directory)
-{
-	stbi_set_flip_vertically_on_load(false);
-	directory.append(str);
-	unsigned char* texture_data = stbi_load(directory.c_str(),
-		&width, &heigth, &nr_channels, 0);
-	unsigned int texture = -1;
-	if(texture_data)
-	{
-		texture = _CreateTexture(texture_data, width, heigth);
-		stbi_image_free(texture_data);
-	}
-	return texture;
-}
-
-unsigned int Model::TextureFromFile(std::string str)
-{
-	stbi_set_flip_vertically_on_load(false);
-	unsigned char* texture_data = stbi_load(str.c_str(),
-		&width, &heigth, &nr_channels, 0);
-	unsigned int texture = -1;
-	if (texture_data)
-	{
-		glGenTextures(1, &texture);
-		glBindTexture(GL_TEXTURE_2D, texture);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, heigth, 0, GL_RGB, GL_UNSIGNED_BYTE,
-			texture_data);
-		glGenerateMipmap(GL_TEXTURE_2D);
-		stbi_image_free(texture_data);
-	}
-	return texture;
 }
