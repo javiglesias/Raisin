@@ -3,17 +3,13 @@
 #include "Mesh.h"
 //#include "Scene.h"
 #include <iostream>
-#include "../cgltf/cgltf.h"
+#define CGLTF_IMPLEMENTATION
+#include "../../cgltf/cgltf.h"
 
 void Model::Draw(glm::mat4 view, glm::mat4 projection, glm::vec3 camera_position)
 {
-	glm::mat4 model = glm::mat4{ 1.f }; 
-	model = glm::translate(model, mPosition);
-	model = glm::rotate<float>(model,9.f, glm::vec3(1, 0,0 ));
-	model = glm::scale(model, mScale);
-
-	for (unsigned int i = 0; i < iCurrentMeshes; i++)
-		mMeshes[i]->Draw(&mMaterials[mMeshes[i]->mMaterialid],model, view, projection, camera_position);
+	/*for (unsigned int i = 0; i < iCurrentMeshes; i++)
+		mMeshes[i]->Draw(&mMaterials[mMeshes[i]->mMaterialid],model, view, projection, camera_position);*/
 }
 
 Model::Model(const char* _filepath, const char*  _modelName)
@@ -21,12 +17,29 @@ Model::Model(const char* _filepath, const char*  _modelName)
 	cgltf_options options {};
 	char filename[128];
 	sprintf(filename, "%s%s", _filepath, _modelName);
+	//auto cachedModel = RaisinEng::mModelDict.find(filename);
+	//if (cachedModel)
+	//{
+	//	strcpy(mName, cachedModel->mName);
+	//	width = cachedModel->width;
+	//	heigth = cachedModel->heigth;
+	//	nr_channels = cachedModel->nr_channels;
+	//	// TODO Esto copia los punteros, no el contenido
+	//	memcpy(mMeshes, cachedModel->mMeshes, sizeof(mMeshes));
+	//	memcpy(mMaterials, cachedModel->mMaterials, sizeof(cachedModel->mMaterials));
+	//	iCurrentMeshes = cachedModel->iCurrentMeshes;
+	//	mPosition = cachedModel->mPosition;
+	//	mScale = cachedModel->mScale;
+	//	mColor = cachedModel->mColor;
+	//	return;
+	//}
 	cgltf_data* modelData = NULL;
 	cgltf_parse_file(&options, filename, &modelData);
-	if(modelData == NULL) exit(-999);
+	if(modelData == NULL) 
+		exit(-999);
 	if(cgltf_load_buffers(&options, modelData, _filepath) != cgltf_result_success)
 		__debugbreak();
-	strcpy(mName, _modelName);
+	strcpy(mName, filename);
 	if(cgltf_validate(modelData) == cgltf_result_success)
 	{
 		printf("\nModel file validated (nodes %ld)", modelData->nodes_count);
@@ -43,22 +56,36 @@ Model::Model(const char* _filepath, const char*  _modelName)
 				//mMaterials[materialID].m_TextureDiffuse = new  Texture();
 				if(material.normal_texture.texture != nullptr)
 				{
-					std::string pathTexture = std::string(material.normal_texture.texture->image->uri);
-					//mMaterials[materialID].m_TextureDiffuse->m_Path =  _filepath + pathTexture;
+					if(material.normal_texture.texture->image->uri)
+					{
+						std::string pathTexture = std::string(material.normal_texture.texture->image->uri);
+						fprintf(stderr, "Normal > %s\n", (_filepath + pathTexture).c_str());
+						char path[128];
+						sprintf(path, "%s\n", (_filepath + pathTexture).c_str());
+					} else
+					{
+						std::string pathTexture("resources/textures/checker.png");
+						/*mMaterials[materialID].m = new Texture(pathTexture);
+						mMaterials[materialID].mTextureAmbient->Setup();*/
+					}
 				}
 				if(material.specular.specular_texture.texture != nullptr)
 				{
 					std::string pathTexture = std::string(material.specular.specular_texture.texture->image->uri);
 					//mMaterials[materialID].m_TextureSpecular->m_Path = _filepath + pathTexture;
+					fprintf(stderr, "Specular > %s\n", (_filepath + pathTexture).c_str());
+					char path[128];
+					sprintf(path, "%s\n", (_filepath + pathTexture).c_str());
 				}
 				if(material.pbr_metallic_roughness.base_color_texture.texture != nullptr)
 				{
 					std::string pathTexture = std::string(material.pbr_metallic_roughness.base_color_texture.texture->image->uri);
 					//material.pbr_metallic_roughness.metallic_roughness_texturematerial.
-					fprintf(stderr, "%s\n",  (_filepath + pathTexture).c_str());
+					fprintf(stderr, "Ambient > %s\n",  (_filepath + pathTexture).c_str());
 					char path[128];
-					sprintf(path, "%s\n",  (_filepath + pathTexture).c_str());
+					sprintf(path, "%s",  (_filepath + pathTexture).c_str());
 					mMaterials[materialID].mTextureAmbient = new Texture(path);
+					mMaterials[materialID].mTextureAmbient->Setup();
 					//mMaterials[materialID].mTextureAmbient->mPath = _filepath + pathTexture;
 					
 				}
@@ -93,7 +120,7 @@ Model::Model(const char* _filepath, const char*  _modelName)
 					{
 						tempMesh->mMaterialid = cgltf_material_index(modelData, mesh->primitives[p].material);
 						auto accessor = mesh->primitives[p].attributes[a].data;
-						Vertex* tempVertex = new Vertex();
+						Vertex tempVertex;
 						if(cgltf_attribute_type_position == mesh->primitives[p].attributes[a].type)
 						{
 							if(accessor->type == cgltf_type_vec3)
@@ -110,14 +137,13 @@ Model::Model(const char* _filepath, const char*  _modelName)
 										vertices[3*k + l] = buffer[n + l];
 										tempVrtx[l] = buffer[n + l];
 									}
-									tempVertex->mPosition= glm::vec3(tempVrtx[0], tempVrtx[1], tempVrtx[2]);
+									tempVertex.mPosition= glm::vec3(tempVrtx[0], tempVrtx[1], tempVrtx[2]);
 									if(tempMesh->mVertices.size() <= k)
 									{
-										tempVertex = new Vertex();
-										tempMesh->mVertices.push_back(*tempVertex);
+										tempMesh->mVertices.push_back(tempVertex);
 									}
 									else
-										tempMesh->mVertices[k].mPosition = tempVertex->mPosition;
+										tempMesh->mVertices[k].mPosition = tempVertex.mPosition;
 									n += (int)(accessor->stride/sizeof(float));
 								}
 							}
@@ -138,14 +164,13 @@ Model::Model(const char* _filepath, const char*  _modelName)
 										values[3*k + l] = buffer[n + l];
 										tempNormal[l] = buffer[n + l];
 									}
-									tempVertex->mNormal = glm::vec3(tempNormal[0], tempNormal[1], tempNormal[2]);
+									tempVertex.mNormal = glm::vec3(tempNormal[0], tempNormal[1], tempNormal[2]);
 									if(tempMesh->mVertices.size() <= k)
 									{
-										tempVertex = new Vertex();
-										tempMesh->mVertices.push_back(*tempVertex);
+										tempMesh->mVertices.push_back(tempVertex);
 									}
 									else
-										tempMesh->mVertices[k].mNormal = tempVertex->mNormal;
+										tempMesh->mVertices[k].mNormal = tempVertex.mNormal;
 									n += (int)(accessor->stride/sizeof(float));
 								}
 							}
@@ -170,14 +195,11 @@ Model::Model(const char* _filepath, const char*  _modelName)
 										values[2*k + l] = buffer[n + l];
 										tempTexCoord[l] = buffer[n + l];
 									}
-									tempVertex->mTexcoord = glm::vec2(tempTexCoord[0], tempTexCoord[1]);
-									if(tempMesh->mVertices.size() <= k)
-									{
-										tempVertex = new Vertex();
-										tempMesh->mVertices.push_back(*tempVertex);
-									}
+									tempVertex.mTexcoord = glm::vec2(tempTexCoord[0], tempTexCoord[1]);
+									if (tempMesh->mVertices.size() <= k)
+										tempMesh->mVertices.push_back(tempVertex);
 									else
-										tempMesh->mVertices[k].mTexcoord = tempVertex->mTexcoord;
+										tempMesh->mVertices[k].mTexcoord = tempVertex.mTexcoord;
 									n += (int)(accessor->stride/sizeof(float));
 								}
 							}
@@ -204,8 +226,14 @@ Model::Model(const char* _filepath, const char*  _modelName)
 				}
 				tempMesh->setupMesh();
 				mMeshes[iCurrentMeshes] = tempMesh;
+				//RaisinEng::mModelDict.add(this);
 				++iCurrentMeshes;
 			}
 		}
 	}
+}
+
+Model::Model(Model* _model)
+{
+	memcpy(this, _model, sizeof(this));
 }

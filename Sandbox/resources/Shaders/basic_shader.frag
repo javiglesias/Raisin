@@ -50,7 +50,6 @@ float LinearizeDepth(float depth);
 
 layout (location = 0) out vec4 FragColor;
 
-uniform sampler2D ourTexture;
 uniform vec3 ViewerPosition;
 uniform vec3 LightPosition;
 uniform vec3 LightColor;
@@ -67,21 +66,17 @@ in vec2 texCoord;
 in vec3 normal;
 in vec3 frag_position;
 
+uniform sampler2D ourTexture;
 
 void main()
 {
 	vec3 viewer_direction = normalize(ViewerPosition - frag_position);
-#ifdef IS_LIGHT_AFFECTED
-		vec3 result;
-		result = (bIsDirectionLightEnabled * directional_light_calculations(normal, frag_position, viewer_direction));
-		float depth = LinearizeDepth(frag_position.z);
-		result += (bIsPointLightEnabled * point_light_calculations(normal, frag_position, viewer_direction));
-		result += LightColor;
-		FragColor = texture(ourTexture, texCoord) * vec4(result, 1.f);
-#else
-		FragColor = vec4(LightColor, 1.f);
-	
-#endif
+	vec3 result;
+	result = (bIsDirectionLightEnabled * directional_light_calculations(normal, frag_position, viewer_direction));
+	float depth = LinearizeDepth(frag_position.z);
+	result += (bIsPointLightEnabled * point_light_calculations(normal, frag_position, viewer_direction));
+	result += LightColor;
+	FragColor = texture(ourTexture, texCoord) * vec4(result, 1.f);
 }
 
 float LinearizeDepth(float depth) 

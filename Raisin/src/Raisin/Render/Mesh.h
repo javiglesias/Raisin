@@ -10,12 +10,13 @@ class Material;
 
 class Mesh 
 {
-	unsigned int VAO, VBO, EBO;
 public:
 	Mesh() {}
 	void Draw(Material* _Material, glm::mat4 model, glm::mat4 view, glm::mat4 projection, glm::vec3 camera_position);
 	void setupMesh();// max materials for models
 public:
+	unsigned int VAO, VBO, EBO;
+	glm::mat4 mModelMatrix = glm::mat4{ 1.f };
 	size_t mNumVertices;
 	size_t mNumIndices;
 	std::vector<Vertex> mVertices;

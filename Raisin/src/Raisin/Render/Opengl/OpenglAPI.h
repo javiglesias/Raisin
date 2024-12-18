@@ -54,10 +54,11 @@ inline GLFWwindow& _CreateWindow(const char* _name, int _Width, int _Height)
 		exit(-1);
 	}
 	glViewport(0, 0, _Width, _Height);
-	/*glEnable(GL_DEPTH_TEST);
+	glEnable(GL_DEPTH_TEST);
+	glDepthFunc(GL_LEQUAL);
 	glEnable(GL_CULL_FACE);
 	glCullFace(GL_FRONT);
-	glFrontFace(GL_CCW);*/
+	glFrontFace(GL_CCW);
 
 	return *m_window;
 }
@@ -118,20 +119,23 @@ inline const unsigned int _CreateTextureFromFile(const char* _str, int* W_, int*
 	unsigned char* texture_data = stbi_load(_str,
 		W_, H_, NChannels_, 0);
 	unsigned int texture = -1;
-	if (texture_data)
+	if (!texture_data)
 	{
-		glGenTextures(1, &texture);
-		glBindTextureUnit(GL_TEXTURE_2D, texture); // Sustituye al activate y bind
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, *W_, *H_, 0, GL_RGB, GL_UNSIGNED_BYTE,
-			texture_data);
-		//glGenerateMipmap(GL_TEXTURE_2D);
-		//glTextureStorage2D(texture, 9, GL_TEXTURE_2D, *W_,  *H_);
-		stbi_image_free(texture_data);
+		texture_data = stbi_load("resources/textures/checker.png",
+			W_, H_, NChannels_, 0);
 	}
+	glGenTextures(1, &texture); 
+	glBindTexture(GL_TEXTURE_2D, texture);
+	//glBindTextureUnit(GL_TEXTURE_2D, texture); // Sustituye al activate y bind
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, *W_, *H_, 0, GL_RGB, GL_UNSIGNED_BYTE,
+		texture_data);
+	glGenerateMipmap(GL_TEXTURE_2D);
+	//glTextureStorage2D(texture, 9, GL_TEXTURE_2D, *W_,  *H_);
+	stbi_image_free(texture_data);
 	return texture;
 }
 
@@ -156,21 +160,21 @@ inline unsigned int _CreateBuffers(size_t _NumIndices, unsigned int* _firstIndex
 	}
 
 	//position
-	glEnableVertexAttribArray(0);
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex),
 		(void*)0);
 	glVertexArrayAttribBinding(*VAO_, 0, 0);
+	glEnableVertexAttribArray(0);
 	// Normal
-	glEnableVertexAttribArray(1);
 	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex),
 		(void*)offsetof(Vertex, mNormal));
 	glVertexArrayAttribBinding(*VAO_, 1, 0);
+	glEnableVertexAttribArray(1);
 
 	// Texture
-	glEnableVertexAttribArray(2);
 	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex),
-		(void*)offsetof(Vertex, mTexcoord));
+		(void*)(6 * sizeof(float)));
 	glVertexArrayAttribBinding(*VAO_, 2, 0);
+	glEnableVertexAttribArray(2);
 
 	return *VAO_;
 }
@@ -178,7 +182,7 @@ inline unsigned int _CreateBuffers(size_t _NumIndices, unsigned int* _firstIndex
 inline void _ClearColorBuffer()
 {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	glClearColor(1.f, 1.f, 0.f, 1.f);
+	glClearColor(0.5f, 1.f, 0.4f, 1.f);
 }
 
 inline unsigned int _Create2DSphere(float _Radio, float _CenterX, float _CenterY, float _Angle)
@@ -268,7 +272,7 @@ inline void _DrawArrays(glm::mat4 _ModelMatrix, glm::mat4 _ViewMatrix, glm::mat4
 }
 
 inline void _DrawElements(glm::mat4 _ModelMatrix, glm::mat4 _ViewMatrix, glm::mat4 _ProjectionMatrix, glm::vec3 _CameraPosition,
-	Material* _Material, unsigned int _VAO, unsigned int _primitive, int _indicesSize)
+	Material* _Material, unsigned int _VAO, unsigned int _primitive, int _indicesSize, glm::vec3 _LightPosition, glm::vec3 _LightColor)
 {
 	// obtenemos los uniforms para las transformaciones 3d
 	unsigned int modelMatrix_location = glGetUniformLocation(_Material->mShaderId, "ModelMatrix");
@@ -277,16 +281,11 @@ inline void _DrawElements(glm::mat4 _ModelMatrix, glm::mat4 _ViewMatrix, glm::ma
 	unsigned int cameraPosition_location = glGetUniformLocation(_Material->mShaderId, "ViewerPosition");
 	unsigned int lightPosition_location = glGetUniformLocation(_Material->mShaderId, "LightPosition");
 	unsigned int lightColor_location = glGetUniformLocation(_Material->mShaderId, "LightColor");
+	if(_Material->mTextureAmbient)
+		glBindTextureUnit(GL_TEXTURE_2D, _Material->mTextureAmbient->id); // Sustituye al activate y bind
 	// Si ya tenemos el shader en uso (optimo) entonces no volvemos a cambiar el estado.
-	if(_ShaderUsed != _Material->mShaderId)
-	{
-		_ShaderUsed = _Material->mShaderId;
-		_UseShader(_Material->mShaderId);
-	}
-	glBindTextureUnit(GL_TEXTURE_2D, _Material->mTextureAmbient->id); // Sustituye al activate y bind
-	//glPolygonMode(GL_FRONT, _Material->mMode);
 	glBindVertexArray(_VAO);
-
+	_UseShader(_Material->mShaderId);
 	// Mandamos los uniforms a la GPU
 	if (modelMatrix_location != -1)
 		glUniformMatrix4fv(modelMatrix_location, 1, GL_FALSE, value_ptr(_ModelMatrix));
@@ -296,10 +295,10 @@ inline void _DrawElements(glm::mat4 _ModelMatrix, glm::mat4 _ViewMatrix, glm::ma
 		glUniformMatrix4fv(projectionMatrix_location, 1, GL_FALSE, value_ptr(_ProjectionMatrix));
 	if (cameraPosition_location != -1)
 		glUniform3fv(cameraPosition_location, 1, value_ptr(_CameraPosition));
-	/*if (lightPosition_location != -1)
+	if (lightPosition_location != -1)
 		glUniform3fv(lightPosition_location, 1, value_ptr(_LightPosition));
 	if (lightColor_location != -1)
-		glUniform3fv(lightColor_location, 1, value_ptr(_LightColor));*/
-
+		glUniform3fv(lightColor_location, 1, value_ptr(_LightColor));
 	glDrawElements(_primitive, _indicesSize, GL_UNSIGNED_INT, 0);
+	glBindVertexArray(0);
 }

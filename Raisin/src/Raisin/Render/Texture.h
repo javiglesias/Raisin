@@ -3,7 +3,7 @@
 
 struct Texture
 {
-	int id = -1;
+	unsigned int id = -1;
 	char mPath[128] = "resources/textures/checker.png";
 	int width = -1, heigth = -1, nr_channels = -1;
 

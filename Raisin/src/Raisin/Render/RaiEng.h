@@ -1,10 +1,37 @@
-#pragma once
+﻿#pragma once
 #include "Model.h"
 #include "RenderAPI.h"
 //#include "Primitives/Cubemap.h" 
 
 namespace RaisinEng
 {
+	struct sModelLoaded
+	{
+		char hash[128]; // path+name
+		Model gltfModel;
+		sModelLoaded(){}
+	};
+	struct sModelDictionary
+	{
+		sModelDictionary(){}
+		sModelLoaded dictionary[256];
+		int dictSize = 0;
+		Model* find(const char* _hash)
+		{
+			for(auto& _model : dictionary)
+			{
+				if (!strcmp(_model.hash, _hash))
+					return new Model(_model.gltfModel);
+			}
+			return nullptr;
+		}
+		void add(Model* _newModel)
+		{
+			strcpy(dictionary[dictSize].hash, _newModel->mName);
+			dictionary[dictSize].gltfModel = _newModel;
+			dictSize++;
+		}
+	};
 	inline unsigned char mFrameCPerf = 0;
 	//inline std::vector<Mesh> oMeshes;
 	//inline sCubemap mCubemap;
@@ -16,7 +43,8 @@ namespace RaisinEng
 	inline float	fYaw = 0.f;
 	inline float	fPitch = 0.f;
 	inline glm::vec3 vCameraPosition(0.f);
-	inline glm::vec3 vLightPosition(0.f);
+	inline glm::vec3 vLightPosition(0.f, 1.f, 0.f);
+	inline glm::vec3 vLightColor(1.f, 1.f, 1.f);
 	inline glm::vec3 vCameraForward(0.f, 0.f, 1.f);
 	inline glm::vec3 vCameraUp(0.f, 1.f, 0.f);
 	inline glm::vec3 vCameraRight(1.f, 0.f, 0.f);
@@ -25,6 +53,7 @@ namespace RaisinEng
 	inline glm::mat4 mLightModelMatrix{ 1.f };
 	inline glm::mat4 mViewMatrix{ 1.f };
 	inline glm::mat4 mProjectionMatrix{ 1.f };
+	inline sModelDictionary mModelDict;
 	inline Model* mModels[256];
 	inline int iCurrentModels=0;
 	inline float mPercentileFPS[255];

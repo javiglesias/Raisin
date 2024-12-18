@@ -10,7 +10,9 @@ class Texture;
 class Model
 {
 public:
+	Model(){}
 	Model(const char* _filepath, const char*  _modelName);
+	Model(Model* _model);
 	void Draw(glm::mat4 view, glm::mat4 projection, glm::vec3 camera_position);
 private:
 	unsigned int TextureFromFile(std::string, std::string);

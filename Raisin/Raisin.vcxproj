@@ -95,9 +95,9 @@
       <PreprocessorDefinitions>__RAISIN_DLL_BUILD;_CRT_SECURE_NO_WARNINGS;_OPENGL;_WINDOWS;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>Default</ConformanceMode>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <LanguageStandard_C>stdc17</LanguageStandard_C>
+      <LanguageStandard_C>stdc11</LanguageStandard_C>
       <AssemblerOutput>AssemblyCode</AssemblerOutput>
-      <AdditionalIncludeDirectories>C:\dev\Raisin\Raisin\src\ThirdParty\FMOD SoundSystem\FMOD Studio API Windows\api\core\inc;C:\dev\Raisin\Raisin\src\ThirdParty\glfw-master\include;C:\VulkanSDK\1.3.268.0\Include;$(ProjectDir)src\ThirdParty\glm-0.9.9.8;$(ProjectDir)src\ThirdParty\glad-master\include;$(ProjectDir)src\ThirdParty\glfw-master\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\core\inc;$(ProjectDir)src\ThirdParty\glfw-master\include;$(ProjectDir)src\ThirdParty\glm-0.9.9.8;$(ProjectDir)src\ThirdParty\glad-master\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <ShowIncludes>false</ShowIncludes>
       <SuppressStartupBanner>false</SuppressStartupBanner>
@@ -105,10 +105,10 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>C:\Program Files %28x86%29\FMOD SoundSystem\FMOD Studio API Windows\api\core\lib\x64;C:\VulkanSDK\1.3.268.0\Lib;$(SolutionDir)Raisin\src\ThirdParty\glad-master\Debug;$(SolutionDir)bin\;$(SolutionDir)Raisin\src\ThirdParty\glfw-master\src\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\core\lib\x64;$(SolutionDir)Raisin\src\ThirdParty\glad-master\Debug;$(SolutionDir)bin\;$(SolutionDir)Raisin\src\ThirdParty\glfw-master\src\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <GenerateMapFile>true</GenerateMapFile>
       <AssemblyDebug>true</AssemblyDebug>
-      <AdditionalDependencies>glad.lib;glfw3.lib;vulkan-1.lib;fmod_vc.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>glad.lib;glfw3.lib;fmod_vc.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Vulkan_Debug|x64'">
@@ -191,6 +191,7 @@
     <ClInclude Include="src\Raisin.hpp" />
     <ClInclude Include="src\Raisin\DebugUtils\Debug.h" />
     <ClInclude Include="src\Raisin\EntryPoint.h" />
+    <ClInclude Include="src\Raisin\Filesystem\ModelImporter.h" />
     <ClInclude Include="src\Raisin\imgui\crude_json.h" />
     <ClInclude Include="src\Raisin\imgui\imconfig.h" />
     <ClInclude Include="src\Raisin\imgui\ImFileDialog.h" />
@@ -216,7 +217,6 @@
     <ClInclude Include="src\Raisin\Render\Primitives\Primitives.h" />
     <ClInclude Include="src\Raisin\Render\RaiEng.h" />
     <ClInclude Include="src\Raisin\Render\RenderAPI.h" />
-    <ClInclude Include="src\Raisin\Render\Scene.h" />
     <ClInclude Include="src\Raisin\Render\Texture.h" />
     <ClInclude Include="src\Raisin\Render\Vulkan\VulkanAPI.h" />
     <ClInclude Include="src\Raisin\Sound\Sound.h" />
@@ -242,7 +242,6 @@
     <ClCompile Include="src\Raisin\Render\Mesh.cpp" />
     <ClCompile Include="src\Raisin\Render\Model.cpp" />
     <ClCompile Include="src\Raisin\Render\RaiEng.cpp" />
-    <ClCompile Include="src\Raisin\Render\Scene.cpp" />
     <ClCompile Include="src\Raisin\Render\Texture.cpp" />
     <ClCompile Include="src\Raisin\Render\Vulkan\VulkanAPI.cpp" />
   </ItemGroup>

@@ -1,5 +1,6 @@
-#include "RaiEng.h"
+﻿#include "RaiEng.h"
 
+#include "Mesh.h"
 #include "../Input/Input.h"
 #include "../Sound/Sound.h"
 #include "Primitives/Primitives.h"
@@ -17,7 +18,7 @@ void _mouse_press_callback(GLFWwindow* _window, int x, int y, int button)
 {
 	if (button == 0 && !RaisinEng::bMouseCaptured)
 		RaisinEng::bMouseCaptured = true;
-	else if(button != 1 && RaisinEng::bMouseCaptured)
+	else
 		RaisinEng::bMouseCaptured = false;
 }
 void mouse_movement_callback(GLFWwindow* _window, double x, double y)
@@ -84,6 +85,21 @@ void RaisinEng::_Init(int _Width, int _Height, const char* _AppName)
 	});
 	InitSoundSystem();
 	//mCubemap.LoadCubeData();
+	/*for (size_t i = 0; i < 100; i++)
+	{
+		mModels[i] = new Model("resources/models/Avocado/glTF/", "Avocado.gltf");
+		mModels[i]->mPosition = glm::vec3(0.4f, (i / 4) / 10, (i%4)/10);
+		iCurrentModels++;
+	}*/
+	mModels[0] = new Model("resources/models/Avocado/glTF/","Avocado.gltf");
+	mModels[0]->mPosition = glm::vec3(0.4f, 0.1f, -0.1f);
+	mModels[1] = new Model("resources/models/Avocado/glTF/","Avocado.gltf");
+	mModels[1]->mPosition = glm::vec3(0.4f, 0.1f, 0.1f);
+	mModels[2] = new Model("resources/models/Avocado/glTF/","Avocado.gltf");
+	mModels[2]->mPosition = glm::vec3(0.4f, -0.1f, 0.1f);
+	mModels[3] = new Model("resources/models/Avocado/glTF/","Avocado.gltf");
+	mModels[3]->mPosition = glm::vec3(0.4f, -0.1f, -0.1f);
+	iCurrentModels = 4;
 }
 
 void RaisinEng::Editor_Init()
@@ -128,7 +144,16 @@ void RaisinEng::_Loop()
 			// Hacemos solo un UseShader, pero pintamos varios modelos.
 			for (int i = 0; i < iCurrentModels; i++)
 			{
-				mModels[i]->Draw(mViewMatrix, mProjectionMatrix, vCameraPosition);
+				//mModels[i]->Draw(mViewMatrix, mProjectionMatrix, vCameraPosition);
+				for(int j = 0; j< mModels[i]->iCurrentMeshes; j++)
+				{
+					auto mesh = mModels[i]->mMeshes[j];
+					mesh->mModelMatrix = glm::scale(glm::mat4(1.f), mModels[i]->mScale);
+					mesh->mModelMatrix = glm::translate(mesh->mModelMatrix, mModels[i]->mPosition);
+					_DrawElements(mesh->mModelMatrix, mViewMatrix, mProjectionMatrix,
+						vCameraPosition, &mModels[i]->mMaterials[mesh->mMaterialid],
+						mesh->VAO, GL_TRIANGLES, mesh->mNumIndices, vLightPosition, vLightColor);
+				}
 			}
 			//mCubemap.Draw(mModelMatrix, mViewMatrix, mProjectionMatrix, vCameraPosition);
 	#ifdef _OPENGL

@@ -1,4 +1,5 @@
 #pragma once
+#ifdef _VULKAN
 // GLAD goes first
 #include "glad/glad.h"
 #define GLFW_INCLUDE_VULKAN
@@ -130,3 +131,4 @@ inline void _DrawElements(glm::mat4 _ModelMatrix, glm::mat4 _ViewMatrix, glm::ma
 {
 	_UseShader(_Material->mShaderId);
 }
+#endif
